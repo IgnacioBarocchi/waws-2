@@ -1,26 +1,67 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import Core from "./components/Core";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default function App() {
+  return <Core />;
 }
 
-export default App;
+/*import { useEffect, useMemo, useState } from "react";
+import LocalStorageService from "./services/LocalStorageService";
+import GameTrigger from "./trigger/GameTrigger";
+import ObjectManager from "./services/ObjectManager";
+import GameEngine from "./services/@GameEngine";*/
+/*
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [shouldTrigger, setShouldTrigger] = useState<boolean>(false);
+  const localStorageService = LocalStorageService.getInstance();
+
+  const loadObject = async () => {
+    if (!localStorageService.getGameEngine()) {
+      const objectManager = new ObjectManager("DEV", {});
+      const engine = new GameEngine(objectManager);
+      localStorageService.setGameEngine(engine);
+      setShouldTrigger(true);
+    }
+  };
+
+  useEffect(() => {
+    loadObject();
+    if (shouldTrigger) {
+      const objectManager = localStorageService.getGameEngine().objectManager;
+      const gameTrigger = new GameTrigger(objectManager);
+
+      if (!objectManager.gameIsCreated) {
+        gameTrigger.trigger("start game");
+        setShouldTrigger(false);
+        setIsLoading(false);
+      }
+    }
+  }, []);
+  if (isLoading) return <div>is loading</div>;
+  */
+
+/*
+onNodeClick={(_, node) => {
+  dispatch({
+    type: "SET_SELECTED_UNIT",
+    payload: SentientUnit.getSentientUnitInstance(
+      node.id
+    ) as SentientUnit,
+  });
+}}
+*/
+
+// const existingData = localStorageService.getData();
+// const keys = ["recodTypes", "gameEngine", "UIState"];
+// if (existingData) {
+//   alert(JSON.stringify(existingData));
+//   // setIsLoading(false);
+//   return;
+// }
+
+// const dataFromWorker = await loadCollection();
+// if (dataFromWorker) {
+//   localStorageService.setdata(dataFromWorker);
+//   console.log("entities are loaded");
+//   setIsLoading(false);
+// }
