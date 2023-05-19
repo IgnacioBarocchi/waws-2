@@ -14,9 +14,6 @@ import {
   BackgroundVariant,
   ReactFlow as Scenario,
   ReactFlowProvider as ScenarioProvider,
-  addEdge,
-  useEdgesState,
-  useNodesState,
   useReactFlow,
   useStoreApi,
 } from "reactflow";
@@ -55,18 +52,13 @@ function Core() {
   const connectingNodeId = useRef(null);
 
   // * Use React Flow variables
-  const [nodes, setNodes, onNodesChange] = useNodesState(
-    objectManager.getData(undefined).nodes
-  );
+  // const [nodes, setNodes, onNodesChange] = useNodesState(
+  //   objectManager.getData(undefined).nodes
+  // );
 
-  const [edges, setEdges, onEdgesChange] = useEdgesState(
-    objectManager.getEdges()
-  );
-
-  // * Load React Hooks dependencies in the class context
-  // Todo: find another way
-  // eg: pass useNodesState and useEdgesState to the class
-  engine.injectSetterHooks(setNodes, setEdges, addEdge);
+  // const [edges, setEdges, onEdgesChange] = useEdgesState(
+  //   objectManager.getEdges()
+  // );
 
   // * After loading the game loops
   const [isPlaying, setIsPlaying] = useState(engine.running);
@@ -106,7 +98,7 @@ function Core() {
 
   const onConnect = useCallback(
     engine.connectionSystem.getOnConnectCallback(),
-    [setEdges, engine.setEdges]
+    [engine.connectionSystem.setEdges, engine.connectionSystem.setEdges]
   );
 
   const onConnectEnd = useCallback(
@@ -133,7 +125,10 @@ function Core() {
      * Combines existing nodes with indexed nodes and filters out any falsy values.
      * @type {Array}
      */
-    const newNodes: Array<any> = [...nodes, ...indexedNodes].filter(Boolean);
+    const newNodes: Array<any> = [
+      ...engine.connectionSystem.nodes,
+      ...indexedNodes,
+    ].filter(Boolean);
 
     // ! 1# WARNING: set nodes is asynchronous.
 
@@ -141,7 +136,7 @@ function Core() {
      * Sets the nodes asynchronously.
      * @returns {void}
      */
-    setNodes(newNodes);
+    engine.connectionSystem.setNodes(newNodes);
 
     // ! 2# WARNING: do not loop through nodes, hence the value is not updated immediately
     // ! not even when we do: setNodes((prevNodes) => [...prevNodes, ...unitNodes]);
@@ -170,11 +165,11 @@ function Core() {
       <Scenario
         // * Renderable entities
         nodeTypes={nodeTypes}
-        nodes={nodes}
-        edges={edges}
+        nodes={engine.connectionSystem.nodes}
+        edges={engine.connectionSystem.edges}
         // * Hooks
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
+        onNodesChange={engine.connectionSystem.onNodesChange}
+        onEdgesChange={engine.connectionSystem.onEdgesChange}
         // * Game engine handlers
         onConnect={onConnect}
         onConnectStart={onConnectStart}

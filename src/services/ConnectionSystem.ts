@@ -10,6 +10,11 @@ import {
   NodeInternals,
   ReactFlowState,
   HandleType,
+  OnNodesChange,
+  useNodesState,
+  OnEdgesChange,
+  addEdge,
+  useEdgesState,
 } from "reactflow";
 
 import GameEngine from "./@GameEngine";
@@ -33,10 +38,41 @@ const MAX_DISTANCE = 350;
 export default class ConnectionSystem implements IFlowable {
   private gameEngine: GameEngine;
   private objectManager: ObjectManager;
+  public useEdgesState: any;
+  public useNodesState: any;
+  public setEdges: React.Dispatch<React.SetStateAction<Edge<any>[]>>;
+  public edges: Edge[];
+  public onEdgesChange: OnEdgesChange | undefined;
+  public nodes: Node<any, string | undefined>[];
+  public setNodes: React.Dispatch<
+    React.SetStateAction<Node<any, string | undefined>[]>
+  >;
+  public onNodesChange: OnNodesChange | undefined;
+  public addEdge: (edgeParams: Edge | Connection, edges: Edge[]) => Edge[];
 
   constructor(gameEngine: GameEngine) {
     this.gameEngine = gameEngine;
     this.objectManager = gameEngine.objectManager;
+
+    this.addEdge = addEdge;
+    this.useEdgesState = useEdgesState;
+    this.useNodesState = useNodesState;
+
+    const [edges, setEdges, onEdgesChange] = this.gameEngine.useEdgesState(
+      this.objectManager.getEdges()
+    );
+
+    this.edges = edges;
+    this.setEdges = setEdges;
+    this.onEdgesChange = onEdgesChange;
+
+    const [nodes, setNodes, onNodesChange] = useNodesState(
+      this.objectManager.getData(undefined).nodes
+    );
+
+    this.nodes = nodes;
+    this.setNodes = setNodes;
+    this.onNodesChange = onNodesChange;
   }
 
   getConnectToClosestEdgeCallback(
@@ -80,7 +116,7 @@ export default class ConnectionSystem implements IFlowable {
         return nextEdges;
       };
 
-      this.gameEngine.setEdges(setEdgesCallback);
+      this.setEdges(setEdgesCallback);
     };
   }
 
@@ -178,9 +214,7 @@ export default class ConnectionSystem implements IFlowable {
         String(building?.id)
       );
 
-      this.gameEngine.setEdges((eds) =>
-        this.gameEngine.addEdge(newBond.getEdge(), eds)
-      );
+      this.setEdges((eds) => this.gameEngine.addEdge(newBond.getEdge(), eds));
     };
 
     return (event: MouseEvent | TouchEvent) => {
@@ -193,9 +227,9 @@ export default class ConnectionSystem implements IFlowable {
   getOnConnectCallback(): (params: Edge | Connection) => void {
     if (!this.gameEngine.running) return this.pausedGameCallback();
 
-    if (!this.gameEngine.setEdges)
+    if (!this.setEdges)
       throw new Error(
-        `Dependecy error: the guarded callback depends on "setEdges". Set edges is: ${this.gameEngine.setEdges}`
+        `Dependecy error: the guarded callback depends on "setEdges". Set edges is: ${this.setEdges}`
       );
 
     if (!this.gameEngine.addEdge)
@@ -209,9 +243,7 @@ export default class ConnectionSystem implements IFlowable {
         String(source),
         String(target)
       );
-      this.gameEngine.setEdges((eds) =>
-        this.gameEngine.addEdge(newBond.getEdge(), eds)
-      );
+      this.setEdges((eds) => this.gameEngine.addEdge(newBond.getEdge(), eds));
     };
   }
 
@@ -236,3 +268,20 @@ interface IStore {
   ) => () => void;
   destroy: () => void;
 }
+
+/*
+  useNodesState: <NodeData = any>(
+    initialItems: Node<NodeData, string | undefined>[]
+  ) => [
+    Node<NodeData, string | undefined>[],
+    Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>,
+    OnChange<NodeChange>
+  ];
+  useEdgesState: <EdgeData = any>(
+    initialItems: Edge<EdgeData>[]
+  ) => [
+    Edge<EdgeData>[],
+    Dispatch<SetStateAction<Edge<EdgeData>[]>>,
+    OnChange<EdgeChange>
+  ];
+*/

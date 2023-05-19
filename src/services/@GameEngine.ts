@@ -4,12 +4,39 @@ import { Connection, Edge, Node } from "reactflow";
 import { IPlayable } from "./interfaces/IPlayable";
 import LocalStorageService from "./LocalStorageService";
 import ConnectionSystem from "./ConnectionSystem";
-
+import { addEdge, useEdgesState, useNodesState } from "reactflow";
 export default class GameEngine implements IPlayable {
+  addEdge(arg0: Edge, eds: Edge<any>[]): Edge<any>[] {
+    throw new Error("Method not implemented.");
+  }
   public running: boolean;
   public objectManager: ObjectManager;
   public connectionSystem: ConnectionSystem;
+  useEdgesState: any;
+  useNodesState: any;
+
+  constructor(objectManager: ObjectManager) {
+    this.running = true;
+    this.objectManager = objectManager;
+    this.connectionSystem = new ConnectionSystem(this);
+  }
+
+  play(): void {
+    // this.connectionSystem.getConnectToClosestEdgeCallback();
+  }
+
+  togglePause(): void {
+    this.running = !this.running;
+  }
+
+  save(): void {
+    LocalStorageService.getInstance().setData(this);
+  }
+}
+
+/* V1
   public hooksLoaded: boolean;
+
   private _setNodes: React.Dispatch<
     React.SetStateAction<Node<any, string | undefined>[]>
   >;
@@ -21,24 +48,8 @@ export default class GameEngine implements IPlayable {
     (edgeParams: Edge | Connection, edges: Edge[]): Edge[];
     (edgeParams: Edge | Connection, edges: Edge[]): Edge[];
   };
-
-  constructor(objectManager: ObjectManager) {
-    this.running = true;
-    this.objectManager = objectManager;
-    this._setNodes = null as any;
-    this._setEdges = null as any;
-    this._addEdge = null as any;
-    this.connectionSystem = new ConnectionSystem(this);
-    this.hooksLoaded = false;
-  }
-
-  play(): void {
-    if (!this.hooksLoaded)
-      throw new Error("The object did not load the react hooks");
-    // this.connectionSystem.getConnectToClosestEdgeCallback();
-  }
-
-  public injectSetterHooks(
+  
+ public injectSetterHooks(
     setNodes: React.Dispatch<
       React.SetStateAction<Node<any, string | undefined>[]>
     >,
@@ -78,12 +89,4 @@ export default class GameEngine implements IPlayable {
   set addEdge(v: (edgeParams: Edge | Connection, edges: Edge[]) => Edge[]) {
     this._addEdge = v;
   }
-
-  togglePause(): void {
-    this.running = !this.running;
-  }
-
-  save(): void {
-    LocalStorageService.getInstance().setData(this);
-  }
-}
+*/
