@@ -1,4 +1,16 @@
-export default class AnimalReproductiveSystem {}
+import Animal from "../../entities/unit/Animal";
+import GeneratorService from "../../services/GeneratorService";
+const generator = GeneratorService.getInstance([]);
+
+export default class AnimalReproductiveSystem {
+  public sex: "f" | "m";
+  constructor(animal: Animal) {
+    const sexer = animal.DNASequence;
+    this.sex = ["f", "m"][
+      Math.floor(generator.generateRandomNumber(sexer) * 2)
+    ] as "f" | "m";
+  }
+}
 // import Animal from '../../../Animal';
 
 // class AnimalReproductiveSystem {

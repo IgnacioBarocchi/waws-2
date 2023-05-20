@@ -5,6 +5,9 @@ import Run from "../../strategies/movement/Run";
 import Trot from "../../strategies/movement/Trot";
 import Walk from "../../strategies/movement/Walk";
 import Animal from "../../entities/unit/Animal";
+import { IPhysicalSystem } from "./IPhysicalSystem";
+import GeneratorService from "../../services/GeneratorService";
+const generator = GeneratorService.getInstance([]);
 
 enum MoveStyle {
   ZigZag = "zig-zag",
@@ -32,13 +35,13 @@ enum MoveActon {
   @param {Animal} animal - The animal entity associated with the motor system.
   @param {number} speed - The speed of the animal's movement.
 **/
-export default class AnimalMotorSystem implements IMovable {
+export default class AnimalMotorSystem implements IMovable, IPhysicalSystem {
   private animal: Animal;
   private currentMoveStrategy: Walk | Run | Trot;
   // Timer to track elapsed time for current strategy
-  private moveStrategyTimer: number = 0;
-  // Duration for each move strategy in seconds
-  private moveStrategyDuration: number = 5;
+  private moveStyleTimer: number = 0;
+  // Duration for each move style in seconds
+  private moveStyleDuration: number = 5;
   private walkStrategy: Walk;
   private trotStrategy: Trot;
   private runStrategy: Run;
@@ -47,10 +50,13 @@ export default class AnimalMotorSystem implements IMovable {
   public currentMoveStyle: MoveStyle;
   public currentAction: MoveActon;
   private turnAngle: number;
+  private animalSpatialMemory: XYPosition[];
+  private currentSpatialMemoryIndex: number;
+
   constructor(animal: Animal, speed: number) {
     this.animal = animal;
     this.speed = speed;
-    this.direction = Math.random() * Math.PI * 2;
+    this.direction = this.getSystemEntrophy() * Math.PI * 2;
     this.walkStrategy = new Walk(animal);
     this.trotStrategy = new Trot(animal);
     this.runStrategy = new Run(animal);
@@ -58,6 +64,8 @@ export default class AnimalMotorSystem implements IMovable {
     this.currentAction = MoveActon.Roaming;
     this.currentMoveStrategy = this.walkStrategy;
     this.turnAngle = 0;
+    this.animalSpatialMemory = [this.animal.position];
+    this.currentSpatialMemoryIndex = 0;
   }
 
   /**
@@ -65,9 +73,24 @@ export default class AnimalMotorSystem implements IMovable {
   @param {number} deltaTime - The time elapsed since the last update.
   */
   roam(deltaTime: number) {
-    this.currentMoveStrategy = this.walkStrategy;
-    this.currentMoveStyle = MoveStyle.Random;
-    this.move(deltaTime);
+    if (this.moveStyleTimer >= this.moveStyleDuration) {
+      this.currentMoveStyle = this.getRandomMoveSyle();
+      this.moveStyleDuration = this.getMoveStyleDirection(); //moveStyleDurations[this.currentMoveStyle];
+      this.moveStyleTimer = 0;
+
+      // Reset memory when switching to random move style
+      if (this.currentMoveStyle === MoveStyle.Random) {
+        this.resetSpatialMemory();
+      }
+    }
+
+    if (this.currentMoveStyle === MoveStyle.Random) {
+      const newPosition = this.getNextPosition();
+      this.animalSpatialMemory.push(newPosition);
+      this.moveFrom(newPosition, deltaTime);
+    } else {
+      this.move(deltaTime);
+    }
   }
 
   /**
@@ -151,12 +174,12 @@ export default class AnimalMotorSystem implements IMovable {
 
     if (this.currentMoveStyle === MoveStyle.Curve) {
       // random turn angle for curve pattern
-      return ((Math.random() - 0.5) * Math.PI) / 2;
+      return ((this.getSystemEntrophy() - 0.5) * Math.PI) / 2;
     }
 
     if (this.currentMoveStyle === MoveStyle.Random) {
       // completely random turn angle for random pattern
-      return Math.random() * 2 * Math.PI;
+      return this.getSystemEntrophy() * 2 * Math.PI;
     }
 
     return 0; // Valor predeterminado si la estrategia no es reconocida
@@ -193,16 +216,7 @@ export default class AnimalMotorSystem implements IMovable {
   @param {number} deltaTime - The time elapsed since the last update.
   */
   private move(deltaTime: number): void {
-    this.moveStrategyTimer += deltaTime;
-
-    // // Check if the current strategy duration has elapsed
-    // if (this.moveStrategyTimer >= this.moveStrategyDuration) {
-    //   // Switch to a new random move strategy
-    //   this.currentMoveStrategy = this.getMoveStrategy();
-
-    //   // Reset the timer for the new strategy
-    //   this.moveStrategyTimer = 0;
-    // }
+    this.moveStyleTimer += deltaTime;
 
     this.currentMoveStrategy.goTo(
       this.calculateNewPosition(deltaTime),
@@ -269,8 +283,86 @@ export default class AnimalMotorSystem implements IMovable {
     this.currentMoveStrategy.goTo(newPosition, deltaTime);
   }
 
+  private getRandomMoveSyle(): MoveStyle {
+    const moveStyles: MoveStyle[] = [
+      MoveStyle.ZigZag,
+      MoveStyle.Straight,
+      MoveStyle.Circular,
+      MoveStyle.Curve,
+      MoveStyle.Random,
+    ];
+
+    const filteredMoveStrategies = moveStyles.filter(
+      (strategy) => strategy !== this.currentMoveStyle
+    );
+
+    const randomIndex = Math.floor(
+      this.getSystemEntrophy() * filteredMoveStrategies.length
+    );
+    return moveStyles[randomIndex];
+  }
+
+  private getMoveStyleDirection(): number {
+    const durationNoise = this.getSystemEntrophy();
+
+    const moveStyleDurations: { [key in MoveStyle]: number } = {
+      [MoveStyle.ZigZag]: 3 + durationNoise,
+      [MoveStyle.Straight]: 7 + durationNoise,
+      [MoveStyle.Circular]: 4 + durationNoise,
+      [MoveStyle.Curve]: 2 + durationNoise,
+      [MoveStyle.Random]: 2 + durationNoise,
+    };
+
+    return moveStyleDurations[this.currentMoveStyle];
+  }
+
+  public getSystemEntrophy(): number {
+    const noiseSource = `${this.animal.position}_${this.animal.DNASequence}`;
+    return generator.generateRandomNumber(noiseSource);
+  }
+
+  /**
+   * Add a new position to the memory.
+   * @param position The position to add.
+   */
+  addPosition(position: XYPosition) {
+    this.animalSpatialMemory.push(position);
+
+    // If the number of positions exceeds the maximum limit (5), remove the oldest position.
+    if (this.animalSpatialMemory.length > 5) {
+      this.animalSpatialMemory.shift();
+    }
+  }
+
+  /**
+   * Get the next position from the memory in a cyclic manner.
+   * @returns The next position.
+   */
+  private getNextPosition(): XYPosition {
+    if (this.animalSpatialMemory.length === 0) {
+      return { x: 0, y: 0 }; // Return a default position if the memory is empty.
+    }
+
+    const position = this.animalSpatialMemory[this.currentSpatialMemoryIndex];
+    this.currentSpatialMemoryIndex =
+      (this.currentSpatialMemoryIndex + 1) % this.animalSpatialMemory.length;
+    return position;
+  }
+
+  /**
+   * Reset the spatial memory by clearing all stored positions and resetting the current index.
+   */
+  private resetSpatialMemory() {
+    this.animalSpatialMemory = [];
+    this.currentSpatialMemoryIndex = 0;
+  }
+
   public get accessTurnAngle(): number {
-    return 5;
+    return this.turnAngle;
+  }
+
+  public get obeyMoveTo() {
+    return this.moveTo;
   }
 }
 
@@ -287,5 +379,12 @@ export default class AnimalMotorSystem implements IMovable {
 
 // todo: mirar el angulo de giro de otro animal para determinar el propio
 // const randomPatter = ["straight", "zig-zag", "curve"][
-//   Math.floor(Math.random() * 3)
+//   Math.floor(this.getSystemEntrophy() * 3)
 // ] as MoveStrategiesType;
+// const moveStyleDurations: { [key in MoveStyle]: number } = {
+//   [MoveStyle.ZigZag]: 3 + durationNoise,
+//   [MoveStyle.Straight]: 5 + durationNoise,
+//   [MoveStyle.Circular]: 7 + durationNoise,
+//   [MoveStyle.Curve]: 4 + durationNoise,
+//   [MoveStyle.Random]: 2 + durationNoise,
+// };

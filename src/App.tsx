@@ -1,8 +1,35 @@
 import "./App.css";
+import { useMemo, useEffect as useGameTriggerEffect } from "react";
+
+import GameEngine from "./services/@GameEngine";
+import ObjectManager from "./services/ObjectManager";
+import GameTrigger from "./trigger/GameTrigger";
+
+import { GameEngineContext } from "./containers/GameEngineContext";
+import { ObjectManagerContext } from "./containers/ObjectManagerContext";
+
 import Core from "./components/Core";
 
+const objectManager = new ObjectManager("DEV", {});
+const gameEngine = new GameEngine(objectManager);
+
 export default function App() {
-  return <Core />;
+  const gameTrigger = useMemo(
+    () => new GameTrigger(objectManager),
+    [objectManager]
+  );
+
+  useGameTriggerEffect(() => {
+    if (!objectManager.gameIsCreated) gameTrigger.trigger("start game");
+  });
+
+  return (
+    <ObjectManagerContext.Provider value={objectManager}>
+      <GameEngineContext.Provider value={gameEngine}>
+        <Core />
+      </GameEngineContext.Provider>
+    </ObjectManagerContext.Provider>
+  );
 }
 
 /*import { useEffect, useMemo, useState } from "react";

@@ -1,7 +1,7 @@
 import { Node, XYPosition } from "reactflow";
 import Bond from "../entities/engine/Bond";
 import PlantFactory from "../entities/construction/PlantFactory";
-import IDGeneratorService from "./IDGeneratorService";
+import GeneratorService from "./GeneratorService";
 import Rock from "../entities/unit/Rock";
 import Animal from "../entities/unit/Animal";
 import Corpse from "../entities/unit/Corpse";
@@ -9,7 +9,9 @@ import Dung from "../entities/unit/Dung";
 import Egg from "../entities/unit/Egg";
 import Microbe from "../entities/unit/Microbe";
 import Plant from "../entities/unit/Plant";
-const idGenerator = IDGeneratorService.getInstance([]);
+import AnimalGroup from "../compositions/AnimalGroup";
+import MicrobeColony from "../compositions/MicrobeColony";
+const generator = GeneratorService.getInstance([]);
 
 export default class ObjectManager {
   public nodes: Node[] = [];
@@ -25,17 +27,27 @@ export default class ObjectManager {
   public microbes: Microbe[] = [];
   public plants: Plant[] = [];
   public rocks: Rock[] = [];
-
+  public compositions: {
+    animalGroups?: AnimalGroup[];
+    microbeColonies?: MicrobeColony;
+  };
   constructor(context: "DEV" | "TEST" | "PROD", settings: any) {
     this.context = context;
     this.gameIsCreated = false;
     this.settings = settings;
+    this.compositions = {
+      animalGroups: [],
+      microbeColonies: [],
+    };
   }
 
   getData(effect: string | undefined): {
     nodes: Node[];
     globalSuffering: number;
   } {
+    if (this.compositions.animalGroups?.length) {
+      this.compositions.animalGroups.forEach((an) => an.tick(0.1));
+    }
     const globalSuffering = this.animals.reduce(
       (accumulator, animal) =>
         accumulator + animal.perceptionSystem.accessCurrentSuffering,
@@ -278,7 +290,7 @@ export default class ObjectManager {
   public createBuilding(buildingType: string, position: XYPosition) {
     if (buildingType === "PlantFactory") {
       const newConstruction = new PlantFactory(
-        `${buildingType}-${idGenerator.generateRandomID()}`,
+        `${buildingType}-${generator.generateRandomID()}`,
         position,
         this
       );

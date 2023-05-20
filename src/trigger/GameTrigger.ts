@@ -1,15 +1,16 @@
+import AnimalGroup from "../compositions/AnimalGroup";
 import PlantFactory from "../entities/construction/PlantFactory";
 import Animal from "../entities/unit/Animal";
 import Plant from "../entities/unit/Plant";
 import Rock from "../entities/unit/Rock";
-import IDGeneratorService from "../services/IDGeneratorService";
+import GeneratorService from "../services/GeneratorService";
 import ObjectManager from "../services/ObjectManager";
 import {
   getRandomRecordTypesArray,
   getUnitIntances,
 } from "../util/GameTriggerUtil";
 import Trigger from "./Trigger";
-const idGenerator = IDGeneratorService.getInstance([]);
+const generator = GeneratorService.getInstance([]);
 
 export default class GameTrigger extends Trigger {
   public objectManager: ObjectManager;
@@ -96,25 +97,36 @@ export default class GameTrigger extends Trigger {
   private initializeUnitsForDevelopmentContext() {
     // this.objectManager.constructions = [
     //   new PlantFactory(
-    //     `PlantFactory-${idGenerator.generateRandomID()}`,
+    //     `PlantFactory-${generator.generateRandomID()}`,
     //     { x: 0, y: 0 },
     //     this.objectManager
     //   ),
     // ];
     // this.objectManager.createPlant(
-    //   `Oak-${idGenerator.generateRandomID()}`,
+    //   `Oak-${generator.generateRandomID()}`,
     //   "oak",
     //   { x: 0, y: 50 }
     // );
-    this.objectManager.createAnimal(null, "lion", { x: 50, y: 50 });
-    // this.objectManager.createCorpse(this.objectManager.animals[0]);
-    // this.objectManager.createDung(this.objectManager.animals[0]);
-    // this.objectManager.createMicrobe(this.objectManager.dungs[0]);
-    // this.objectManager.createEgg(this.objectManager.animals[0]);
-    // this.objectManager.createRock(`Rock-${idGenerator.generateRandomID()}`, {
-    //   x: 50,
-    //   y: 100,
-    // });
+    const leader = this.objectManager.createAnimal("the-leader", "lion", {
+      x: 50,
+      y: 50,
+    });
+    leader.age = 500;
+    leader.reproductiveSystem.sex = "m";
+
+    for (let i = 0; i < 18; i++) {
+      this.objectManager.createAnimal(null, "lion", { x: i, y: i + 10 });
+    }
+
+    const animalGroup = new AnimalGroup(
+      null,
+      this.objectManager.animals,
+      "society",
+      null,
+      "lion"
+    );
+    animalGroup.tick(0.1);
+    this.objectManager?.compositions?.animalGroups?.push(animalGroup);
   }
 }
 

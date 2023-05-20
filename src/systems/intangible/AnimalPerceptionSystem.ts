@@ -1,3 +1,4 @@
+import { Observer, Order } from "../../compositions/AnimalGroup";
 import Animal from "../../entities/unit/Animal";
 import AnimalMotorSystem from "../physical/AnimalMotorSystem";
 import AnimalDecisionSystem from "./AnimalDecisionSystem";
@@ -28,23 +29,48 @@ import AnimalDecisionSystem from "./AnimalDecisionSystem";
 */
 
 export default class AnimalPerceptionSystem {
-  private animal: Animal;
   private currentSuffering;
   private currentHealth;
-  private decisionSystem: AnimalDecisionSystem;
+  private decisionSystem: AnimalDecisionSystem | null;
+  private groupLeader: Animal | null;
+  private observers: Observer[];
+  private orderFromLeader: Order | null;
+
   // todo: add thresholds and initials
-  constructor(animal: Animal) {
-    this.animal = animal;
-    this.decisionSystem = this.animal.decisionSystem;
+  constructor() {
+    // animal: Animal
+    // this.animal = animal;
+    // this.decisionSystem = this.animal.decisionSystem;
+    this.decisionSystem = null;
     this.currentSuffering = 0;
     // todo: !hardcoded
     this.currentHealth = 100;
+    this.groupLeader = null;
+    this.observers = [];
+    this.orderFromLeader = null;
   }
 
   perceive(deltaTime: number) {
-    console.info("Perception");
-    // process data ()
-    this.decisionSystem.decide(deltaTime);
+    if (this.decisionSystem) {
+      this.decisionSystem.decide(deltaTime);
+    }
+  }
+
+  registerObserver(observer: Observer): void {
+    this.observers.push(observer);
+  }
+
+  removeObserver(observer: Observer): void {
+    const index = this.observers.indexOf(observer);
+    if (index !== -1) {
+      this.observers.splice(index, 1);
+    }
+  }
+
+  receiveOrder(order: Order): void {
+    this.orderFromLeader = order;
+    // Handle the received order from the leader
+    // ...
   }
 
   public get accessCurrentSuffering(): number {
@@ -62,7 +88,25 @@ export default class AnimalPerceptionSystem {
   public set setCurrentHealth(v: number) {
     this.currentHealth = v;
   }
-  /*
+
+  public get getGroupLeader(): Animal | null {
+    return this.groupLeader;
+  }
+
+  public set setGroupLeader(v: Animal) {
+    this.groupLeader = v;
+  }
+
+  public set setDecisionSystem(v: AnimalDecisionSystem) {
+    this.decisionSystem = v;
+  }
+
+  public get getOrderFromLeader(): Order | null {
+    return this.orderFromLeader;
+  }
+}
+
+/*
   public persive(): void {
     const {
       negative: negativeInbounds,
@@ -151,5 +195,4 @@ export default class AnimalPerceptionSystem {
 
     return classification;
   }
-  */
-}
+*/

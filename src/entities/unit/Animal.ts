@@ -4,42 +4,59 @@ import { IMortal } from "../../interfaces/IMortal";
 import { IReproducible } from "../../interfaces/IReproducible";
 import { ISpecies } from "../../interfaces/ISpecies";
 import ObjectManager from "../../services/ObjectManager";
-import IDGeneratorService from "../../services/IDGeneratorService";
 import AnimalMotorSystem from "../../systems/physical/AnimalMotorSystem";
-import { IObserver } from "../../services/interfaces/IObserver";
-import AnimalPerceptionSystem from "../../systems/intangible/AnimalPerseptionSystem";
+import AnimalPerceptionSystem from "../../systems/intangible/AnimalPerceptionSystem";
 import AnimalDecisionSystem from "../../systems/intangible/AnimalDecisionSystem";
-const idGenerator = IDGeneratorService.getInstance([]);
+import GeneratorService from "../../services/GeneratorService";
+import AnimalReproductiveSystem from "../../systems/physical/AnimalReproductiveSystem";
+import { Observer } from "../../compositions/AnimalGroup";
+
+const generator = GeneratorService.getInstance([]);
 
 export default class Animal
   extends Unit
-  implements IReproducible, IMortal, ISpecies, IObserver
+  implements IReproducible, IMortal, ISpecies
 {
-  public objectManager: ObjectManager;
-  public species: string;
-  public perceptionSystem: AnimalPerceptionSystem;
-  public decisionSystem: AnimalDecisionSystem;
-  public motorSystem: AnimalMotorSystem;
-
+  objectManager: ObjectManager;
+  species: string;
+  perceptionSystem: AnimalPerceptionSystem;
+  decisionSystem: AnimalDecisionSystem;
+  motorSystem: AnimalMotorSystem;
+  DNASequence: string;
+  reproductiveSystem: AnimalReproductiveSystem;
+  age: number;
+  damage: number;
   constructor(
     id: string | null,
     species: string,
     position: XYPosition,
     objectManager: ObjectManager
   ) {
-    if (!id) id = `${species}-${idGenerator.generateRandomID()}`;
+    if (!id) id = `${species}-${generator.generateRandomID()}`;
     super(id, position);
     // * Dependency injection
     this.objectManager = objectManager;
     // * Internals
-    this.motorSystem = new AnimalMotorSystem(this, 5);
-    this.decisionSystem = new AnimalDecisionSystem(this);
-    this.perceptionSystem = new AnimalPerceptionSystem(this);
+    this.motorSystem = new AnimalMotorSystem(this, 20);
+    this.reproductiveSystem = new AnimalReproductiveSystem(this);
+    this.perceptionSystem = new AnimalPerceptionSystem();
+
+    this.decisionSystem = new AnimalDecisionSystem(
+      this.perceptionSystem,
+      this.motorSystem,
+      this.reproductiveSystem
+    );
+
+    this.perceptionSystem.setDecisionSystem = this.decisionSystem;
+
     this.id = id;
     this.position = position;
     this.type = "Animal";
     this.data.label = "🦁";
     this.species = species;
+    this.DNASequence = generator.generateRandomDNASequence();
+    this.age = 5;
+    this.damage = Math.random() * 5;
   }
 
   update(): void {

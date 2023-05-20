@@ -4,8 +4,8 @@ import { IDecomposable } from "../../interfaces/IDecomposable";
 import { IMicrobeEmitter } from "../../interfaces/IMicrobeEmitter";
 import { ISpecies } from "../../interfaces/ISpecies";
 import ObjectManager from "../../services/ObjectManager";
-import IDGeneratorService from "../../services/IDGeneratorService";
-const idGenerator = IDGeneratorService.getInstance([]);
+import GeneratorService from "../../services/GeneratorService";
+const generator = GeneratorService.getInstance([]);
 
 export default class Dung
   extends Unit
@@ -19,7 +19,7 @@ export default class Dung
     position: XYPosition,
     objectManager: ObjectManager
   ) {
-    if (!id) id = `${species}-${idGenerator.generateRandomID()}`;
+    if (!id) id = `${species}-${generator.generateRandomID()}`;
     super(id, position);
     this.objectManager = objectManager;
 

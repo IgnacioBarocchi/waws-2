@@ -21,25 +21,15 @@ import {
   useStoreApi,
 } from "reactflow";
 
-import GameEngine from "../../services/@GameEngine";
-import GameTrigger from "../../trigger/GameTrigger";
-import ObjectManager from "../../services/ObjectManager";
 import NodeComponents from "../../components/NodeTypes/NodeComponents";
 import { DEFAULT_GAME_SPEED } from "../../constants/config/game";
-
-const selectedBuilding = "PlantFactory";
+import { useObjectManager } from "../../containers/ObjectManagerContext";
+import { useGameEngine } from "../../containers/GameEngineContext";
 
 function Core() {
-  const objectManager = useMemo(() => new ObjectManager("DEV", {}), []);
-  const gameTrigger = useMemo(
-    () => new GameTrigger(objectManager),
-    [objectManager]
-  );
-  const engine = useMemo(() => new GameEngine(objectManager), [objectManager]);
-
-  useGameTriggerEffect(() => {
-    if (!objectManager.gameIsCreated) gameTrigger.trigger("start game");
-  });
+  const selectedBuilding = "PlantFactory";
+  const objectManager = useObjectManager();
+  const engine = useGameEngine();
 
   // ! Mutable state
   const store = useStoreApi();

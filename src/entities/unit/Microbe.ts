@@ -4,9 +4,9 @@ import { IMortal } from "../../interfaces/IMortal";
 import { IReproducible } from "../../interfaces/IReproducible";
 import { ISpecies } from "../../interfaces/ISpecies";
 import ObjectManager from "../../services/ObjectManager";
-import IDGeneratorService from "../../services/IDGeneratorService";
+import GeneratorService from "../../services/GeneratorService";
 import BinaryFissionReproductiveStrategy from "../../strategies/reproduction/BinaryFissionReproductiveStrategy";
-const idGenerator = IDGeneratorService.getInstance([]);
+const generator = GeneratorService.getInstance([]);
 
 export default class Microbe
   extends Unit
@@ -23,7 +23,7 @@ export default class Microbe
     position: XYPosition,
     objectManager: ObjectManager
   ) {
-    if (!id) id = `${species}-${idGenerator.generateRandomID()}`;
+    if (!id) id = `${species}-${generator.generateRandomID()}`;
     super(id, position);
     this.objectManager = objectManager;
     this.id = id;

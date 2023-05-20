@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { Handle, NodeTypes, Position } from "reactflow";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
+
 type unitType =
   | "Animal"
   | "Corpse"
@@ -8,23 +10,10 @@ type unitType =
   | "Microbe"
   | "Plant"
   | "Rock";
-const rotate = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-`;
-
-const RotatingDiv = styled.div`
-  display: inline-block;
-  animation: ${rotate} 2s linear infinite;
-`;
 
 const Arrow = styled.div<{ angle: number }>`
   position: absolute;
-  top: 7%;
+  top: -10%;
   left: 50%;
   width: 10;
   height: 10;
@@ -34,7 +23,6 @@ const Arrow = styled.div<{ angle: number }>`
   border-right: 6px solid transparent;
   border-bottom: 6px solid black;
   transform-origin: bottom; /* Define el punto de origen de la rotación */
-  background-color: blue;
   /* Aplica la rotación utilizando el ángulo pasado como prop */
   transform: rotate(${(props) => props.angle}rad);
 `;
@@ -60,22 +48,23 @@ const Label = styled.label<{
   border-radius: 50%;
 `;
 
-function UnitNode({ nodeData }: { nodeData: NodeTypes }) {
+function UnitNode({
+  nodeData,
+  publicInstanceData,
+}: {
+  nodeData: NodeTypes;
+  publicInstanceData: { turnAngle: number | undefined };
+}) {
   const {
     selected,
-    data: {
-      // @ts-ignore
-      label,
-      // @ts-ignore
-      instance,
-    },
+    // @ts-ignore
+    data: { label },
     type: unitType,
   } = nodeData;
 
-  const turnAngle =
-    instance && instance.type === "Animal"
-      ? instance.motorSystem.accessTurnAngle
-      : undefined;
+  useEffect(() => {
+    // console.count("a");
+  }, [publicInstanceData.turnAngle]);
 
   return (
     <>
@@ -94,7 +83,11 @@ function UnitNode({ nodeData }: { nodeData: NodeTypes }) {
         unitType={unitType as unknown as unitType}
         selected={selected as unknown as boolean}
       >
-        {<Arrow id="arrowt" angle={5}></Arrow>}
+        {/* @ts-ignore */}
+        {unitType === "Animal" && (
+          // @ts-ignore
+          <Arrow angle={publicInstanceData.turnAngle} />
+        )}
         {String(label)}
       </Label>
 

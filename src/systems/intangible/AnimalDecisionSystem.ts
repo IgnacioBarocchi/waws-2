@@ -1,5 +1,8 @@
+import { XYPosition } from "reactflow";
 import Animal from "../../entities/unit/Animal";
 import AnimalMotorSystem from "../physical/AnimalMotorSystem";
+import AnimalReproductiveSystem from "../physical/AnimalReproductiveSystem";
+import AnimalPerceptionSystem from "./AnimalPerceptionSystem";
 
 /**
 
@@ -27,17 +30,33 @@ Future versions of the AnimalDecisionSystem aim to incorporate advanced artifici
 Creates an instance of AnimalDecisionSystem.
 */
 export default class AnimalDecisionSystem {
-  private animal: Animal;
   private motorSystem: AnimalMotorSystem;
+  private perceptionSystem: AnimalPerceptionSystem;
+  private reproductiveSystem: AnimalReproductiveSystem;
 
-  constructor(animal: Animal) {
-    this.animal = animal;
-    this.motorSystem = this.animal.motorSystem;
+  constructor(
+    perceptionSystem: AnimalPerceptionSystem,
+    motorSystem: AnimalMotorSystem,
+    reproductiveSystem: AnimalReproductiveSystem
+  ) {
+    this.motorSystem = motorSystem;
+    this.perceptionSystem = perceptionSystem;
+    this.reproductiveSystem = reproductiveSystem;
   }
 
   decide(deltaTime: number) {
-    console.info("decide");
-    this.motorSystem.roam(deltaTime);
+    if (
+      this.perceptionSystem?.getGroupLeader &&
+      this.perceptionSystem.getOrderFromLeader
+    ) {
+      if (this.perceptionSystem.getOrderFromLeader.type === "move") {
+        const { payload: position } = this.perceptionSystem.getOrderFromLeader;
+
+        this.motorSystem.obeyMoveTo(position as XYPosition, deltaTime);
+      }
+    } else {
+      this.motorSystem.roam(deltaTime);
+    }
   }
 }
 
