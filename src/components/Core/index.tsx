@@ -20,7 +20,7 @@ import {
 } from "reactflow";
 
 import NodeComponents from "../../components/NodeTypes/NodeComponents";
-import { DEFAULT_GAME_SPEED } from "../../constants/config/game";
+import { DEFAULT_GAME_SPEED, MIN_DISTANCE } from "../../constants/config/game";
 import { useObjectManager } from "../../containers/ObjectManagerContext";
 import { useGameEngine } from "../../containers/GameEngineContext";
 import UI from "../UI";
@@ -77,18 +77,19 @@ function Core() {
     []
   );
 
-  const getClosestEdge = useCallback(
-    engine.connectionSystem.getClosestEdgeCallbackFromNodesStore(store),
-    [store]
-  );
+  // const getClosestEdge = useCallback(
+  //   engine.connectionSystem.getClosestEdgeCallbackFromNodesStore(store),
+  //   [store]
+  // );
 
-  const connectToClosestEdge = useCallback(
-    engine.connectionSystem.getConnectToClosestEdgeCallback(
-      store,
-      getClosestEdge
-    ),
-    [getClosestEdge, store]
-  );
+  //   useCallback(
+  //   engine.connectionSystem.getConnectToClosestEdgeCallback(
+  //     store
+  //     // getClosestEdge
+  //   ),
+  //   [store]
+  //   // [getClosestEdge, store]
+  // );
 
   const onConnect = useCallback(
     engine.connectionSystem.getOnConnectCallback(),
@@ -103,7 +104,88 @@ function Core() {
     ),
     [project, selectedBuilding]
   );
+  // @ts-ignore
+  const getClosestEdge = useCallback((node) => {
+    const { nodeInternals } = store.getState();
+    const storeNodes = Array.from(nodeInternals.values());
+    const closestNode = storeNodes.reduce(
+      (res, n) => {
+        if (n.id !== node.id) {
+          // ! IMPORTANTE
+          // ! node no tiene position absolute porque no es el nodo capturado por el evento dragging.
+          // ! sin embargo, "n" si tiene
+          // @ts-ignore
+          const dx = n.positionAbsolute.x - node.position.x;
+          // @ts-ignore
+          const dy = n.positionAbsolute.y - node.position.y;
+          const d = Math.sqrt(dx * dx + dy * dy);
 
+          if (d < res.distance && d < MIN_DISTANCE) {
+            res.distance = d;
+            // @ts-ignore
+            res.node = n;
+          }
+        }
+        return res;
+      },
+      {
+        distance: Number.MAX_VALUE,
+        node: null,
+      }
+    );
+
+    if (!closestNode.node) {
+      return null;
+    }
+    // ! SE ESPERA QUE EL RESULTADO SI TENGA ABS POSITION (closestNode.node.positionAbsolute)
+    // ! PERO COMO VIMOS ANTES NODE NO TIENE (node)
+    // @ts-ignore
+    const closeNodeIsSource =
+      // @ts-ignore
+      closestNode.node.positionAbsolute.x < node.position.x;
+    // closestNode.node.positionAbsolute.x < node.positionAbsolute.x;
+
+    return {
+      // @ts-ignore
+      id: `${node.id}-${closestNode.node.id}`,
+      // @ts-ignore
+      source: closeNodeIsSource ? closestNode.node.id : node.id,
+      // @ts-ignore
+      target: closeNodeIsSource ? node.id : closestNode.node.id,
+    };
+  }, []);
+
+  const connectToClosestEdge = useCallback(
+    // @ts-ignore
+    (node) => {
+      const closeEdge = getClosestEdge(node);
+
+      setEdges((es) => {
+        const nextEdges = es.filter((e) => e.className !== "temp");
+
+        if (
+          closeEdge &&
+          !nextEdges.find(
+            (ne) =>
+              ne.source === closeEdge.source && ne.target === closeEdge.target
+          )
+        ) {
+          const commitedEdge = objectManager.createBond(
+            closeEdge.source,
+            closeEdge.target
+          );
+          // @ts-ignore //! ACA LE DA EL NOMBRE DE LA CLASE TEMPORAL!
+          commitedEdge.className = "commited";
+          nextEdges.push(commitedEdge);
+          // closeEdge.className = "temp";
+          // nextEdges.push(closeEdge);
+        }
+
+        return nextEdges;
+      });
+    },
+    [getClosestEdge, setEdges]
+  );
   /**
    * Plays the game.
    * @returns {void}
@@ -138,10 +220,12 @@ function Core() {
      * @param {*} n The node to connect to the closest edge.
      * @returns {void}
      */
-    newNodes.forEach((n) => {
-      console.log("connect loop");
-      connectToClosestEdge(undefined, n);
-    });
+    newNodes.forEach(connectToClosestEdge);
+    // newNodes.forEach((n) => {
+    //   // console.log("connect loop");
+    //   // console.info(JSON.stringify(store));
+    //   // connectToClosestEdge(undefined, n);
+    // });
   };
 
   usePlayGameEffect(() => {
@@ -177,9 +261,9 @@ function Core() {
 }
 
 export default () => (
-  <ScenarioProvider>
-    <Core />
-  </ScenarioProvider>
+  // <ScenarioProvider>
+  <Core />
+  // </ScenarioProvider>
 );
 // * Initialize
 // const objectManager = new ObjectManager("DEV", {});
@@ -190,4 +274,14 @@ export default () => (
 engine.setNodes = setNodes;
 engine.setEdges = setEdges;
 engine.addEdge = addEdge;
+*/
+/*
+  if (targetNode.positionAbsolute && sourceNode.positionAbsolute) {
+    const dx = targetNode.positionAbsolute.x - sourceNode.positionAbsolute.x;
+    const dy = targetNode.positionAbsolute.y - sourceNode.positionAbsolute.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+  const dx = targetNode.position.x - sourceNode.position.x;
+  const dy = targetNode.position.y - sourceNode.position.y;
+  return Math.sqrt(dx * dx + dy * dy);
 */

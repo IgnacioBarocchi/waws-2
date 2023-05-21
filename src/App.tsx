@@ -15,7 +15,7 @@ import GlobalGameEntitiesStyler from "./containers/GlobalGameEntitiesStyler";
 import { loadAnimalRecordTypes } from "./workers/loadAnimalRecordTypes";
 import LocalStorageService from "./services/LocalStorageService";
 import { ThreeProvider } from "./containers/ThreeContext";
-
+import { ReactFlowProvider as ScenarioProvider } from "reactflow";
 const objectManager = new ObjectManager("DEV", {});
 const gameEngine = new GameEngine(objectManager, { graphics: "l", time: 1 });
 const localStorageService = LocalStorageService.getInstance();
@@ -68,7 +68,9 @@ export default function App() {
         <GameEngineContext.Provider value={gameEngine}>
           <ThreeProvider>
             <GlobalGameEntitiesStyler hideEdges={UIHidden} />
-            <Core />
+            <ScenarioProvider>
+              <Core />
+            </ScenarioProvider>
           </ThreeProvider>
         </GameEngineContext.Provider>
       </ObjectManagerContext.Provider>

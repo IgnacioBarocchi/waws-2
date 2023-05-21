@@ -37,6 +37,11 @@ const GlobalGameEntitiesStyler = createGlobalStyle<{ hideEdges: boolean }>`
   stroke-dasharray: 5 5;
 }
 
+.commited .react-flow__edge-path {
+  stroke: red;
+}
+
+
 [data-message] {
   display: none;
 }

@@ -39,25 +39,13 @@ export default class ConnectionSystem implements IFlowable {
     this.objectManager = gameEngine.objectManager;
   }
 
-  getConnectToClosestEdgeCallback(
-    store: IStore,
-    getClosestEdge: (node: Node) => Edge<any> | null
-  ) {
-    console.log("callback passed: " + JSON.stringify(getClosestEdge));
-    if (!store || Object.keys(store).length === 0) {
-      return () => {
-        console.warn("No store found");
-      };
-    }
-
-    if (typeof getClosestEdge !== "function") {
-      return () => {
-        console.warn(`"getClosestEdge" is not a function`);
-      };
-    }
+  getConnectToClosestEdgeCallback(store: IStore) {
+    console.log(
+      "store passed: " + JSON.stringify(store.getState().nodeInternals.values())
+    );
 
     return (_: MouseEvent | TouchEvent | undefined, node: Node) => {
-      const closeEdge = getClosestEdge(node);
+      const closeEdge = this.getClosestEdgeCallbackFromNodesStore(store)(node);
 
       const setEdgesCallback = (es: Iterable<unknown> | null | undefined) => {
         // todo: improve performance
