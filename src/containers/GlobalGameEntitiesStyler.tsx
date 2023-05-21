@@ -1,3 +1,6 @@
+import { createGlobalStyle } from "styled-components";
+
+const GlobalGameEntitiesStyler = createGlobalStyle<{ hideEdges: boolean }>`
 .react-flow .react-flow__handle {
   background-color: #784be8;
 }
@@ -47,6 +50,7 @@ body,
   padding: 0;
   box-sizing: border-box;
   font-family: sans-serif;
+  background-color: #3333;
 }
 .react-flow__edge-path {
   /* stroke: #333; */
@@ -78,3 +82,10 @@ code {
   stroke: #bbb;
   stroke-dasharray: 5 5;
 }
+
+.react-flow__edges{
+  ${({ hideEdges }) => hideEdges && "display: none"}
+}
+`;
+
+export default GlobalGameEntitiesStyler;

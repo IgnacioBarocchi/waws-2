@@ -1,0 +1,324 @@
+{
+  "hyena": {
+    "stats": {
+      "size": 5,
+      "maxHealth": 90,
+      "maxDamage": 100,
+      "maxSpeed": 45,
+      "lifespan": 12,
+      "age": 0,
+      "bodyStructure": "vertebrate",
+      "avatars": {
+        "low": "🐶",
+        "medium": "hyena_medium.png",
+        "high": "hyena_high.png"
+      }
+    },
+    "systems": {
+      "perception": {
+        "interactionRadius": 180,
+        "currentHealth": 90,
+        "currentMood": "happy",
+        "diet": {
+          "picks": [],
+          "hunts": [],
+          "parasites": []
+        }
+      },
+      "motor": {
+        "currentSpeed": 40,
+        "stamina": 80
+      },
+      "reproduction": {
+        "reproductiveStrategy": "sexual",
+        "selection": "r",
+        "sex": "f"
+      },
+      "decision": {
+        "behavior": "aggressive",
+        "social": {
+          "obedience": 0.5,
+          "formsGroups": true,
+          "spatialArragementStrategy": "linear",
+          "socialHierarchyType": "matriarchy"
+        }
+      }
+    }
+  },
+  "elephant": {
+    "stats": {
+      "size": 9,
+      "maxHealth": 200,
+      "maxDamage": 100,
+      "maxSpeed": 30,
+      "lifespan": 50,
+      "age": 0,
+      "bodyStructure": "vertebrate",
+      "avatars": {
+        "low": "🐘",
+        "medium": "elephant_medium.png",
+        "high": "elephant_high.png"
+      }
+    },
+    "systems": {
+      "perception": {
+        "interactionRadius": 250,
+        "currentHealth": 200,
+        "currentMood": "happy",
+        "diet": {
+          "picks": [],
+          "hunts": [],
+          "parasites": []
+        }
+      },
+      "motor": {
+        "currentSpeed": 20,
+        "stamina": 150
+      },
+      "reproduction": {
+        "reproductiveStrategy": "sexual",
+        "selection": "K",
+        "sex": "f"
+      },
+      "decision": {
+        "behavior": "territorial",
+        "social": {
+          "obedience": 0.6,
+          "formsGroups": true,
+          "spatialArragementStrategy": "ring",
+          "socialHierarchyType": "patriarchy"
+        }
+      }
+    }
+  },
+  "cow": {
+    "stats": {
+      "size": 6,
+      "maxHealth": 120,
+      "maxDamage": 100,
+      "maxSpeed": 40,
+      "lifespan": 20,
+      "age": 0,
+      "bodyStructure": "vertebrate",
+      "avatars": {
+        "low": "🐄",
+        "medium": "cow_medium.png",
+        "high": "cow_high.png"
+      }
+    },
+    "systems": {
+      "perception": {
+        "interactionRadius": 150,
+        "currentHealth": 120,
+        "currentMood": "happy",
+        "diet": {
+          "picks": [],
+          "hunts": [],
+          "parasites": []
+        }
+      },
+      "motor": {
+        "currentSpeed": 30,
+        "stamina": 80
+      },
+      "reproduction": {
+        "reproductiveStrategy": "sexual",
+        "selection": "r",
+        "sex": "f"
+      },
+      "decision": {
+        "behavior": "territorial",
+        "social": {
+          "obedience": 0.7,
+          "formsGroups": true,
+          "spatialArragementStrategy": "linear",
+          "socialHierarchyType": "dominance"
+        }
+      }
+    }
+  },
+  "lion": {
+    "stats": {
+      "size": 7,
+      "maxHealth": 80,
+      "maxDamage": 100,
+      "maxSpeed": 60,
+      "lifespan": 12,
+      "age": 0,
+      "bodyStructure": "vertebrate",
+      "avatars": {
+        "low": "",
+        "medium": "lion_medium.png",
+        "high": "lion_high.png"
+      }
+    },
+    "systems": {
+      "perception": {
+        "interactionRadius": 200,
+        "currentHealth": 80,
+        "currentMood": "happy",
+        "diet": {
+          "picks": [],
+          "hunts": [],
+          "parasites": []
+        }
+      },
+      "motor": {
+        "currentSpeed": 50,
+        "stamina": 100
+      },
+      "reproduction": {
+        "reproductiveStrategy": "sexual",
+        "selection": "K",
+        "sex": "m"
+      },
+      "decision": {
+        "behavior": "territorial",
+        "social": {
+          "obedience": 0.8,
+          "formsGroups": true,
+          "spatialArragementStrategy": "tree",
+          "socialHierarchyType": "dominance"
+        }
+      }
+    }
+  },
+  "wolf": {
+    "stats": {
+      "size": 5,
+      "maxHealth": 100,
+      "maxDamage": 100,
+      "maxSpeed": 60,
+      "lifespan": 10,
+      "age": 0,
+      "bodyStructure": "vertebrate",
+      "avatars": {
+        "low": "🐺",
+        "medium": "wolf_medium.png",
+        "high": "wolf_high.png"
+      }
+    },
+    "systems": {
+      "perception": {
+        "interactionRadius": 200,
+        "currentHealth": 100,
+        "currentMood": "happy",
+        "diet": {
+          "picks": [],
+          "hunts": [],
+          "parasites": []
+        }
+      },
+      "motor": {
+        "currentSpeed": 50,
+        "stamina": 70
+      },
+      "reproduction": {
+        "reproductiveStrategy": "sexual",
+        "selection": "r",
+        "sex": "m"
+      },
+      "decision": {
+        "behavior": "aggressive",
+        "social": {
+          "obedience": 0.6,
+          "formsGroups": true,
+          "spatialArragementStrategy": "tree",
+          "socialHierarchyType": "dominance"
+        }
+      }
+    }
+  },
+  "ant": {
+    "stats": {
+      "size": 1,
+      "maxHealth": 20,
+      "maxDamage": 100,
+      "maxSpeed": 10,
+      "lifespan": 2,
+      "age": 0,
+      "bodyStructure": "invertebrate",
+      "avatars": {
+        "low": "🐜",
+        "medium": "ant_medium.png",
+        "high": "ant_high.png"
+      }
+    },
+    "systems": {
+      "perception": {
+        "interactionRadius": 50,
+        "currentHealth": 20,
+        "currentMood": "happy",
+        "diet": {
+          "picks": [],
+          "hunts": [],
+          "parasites": []
+        }
+      },
+      "motor": {
+        "currentSpeed": 5,
+        "stamina": 30
+      },
+      "reproduction": {
+        "reproductiveStrategy": "asexual",
+        "selection": "r",
+        "sex": "f"
+      },
+      "decision": {
+        "behavior": "territorial",
+        "social": {
+          "obedience": 0.8,
+          "formsGroups": true,
+          "spatialArragementStrategy": "ring",
+          "socialHierarchyType": "dominance"
+        }
+      }
+    }
+  },
+  "bee": {
+    "stats": {
+      "size": 1,
+      "maxHealth": 15,
+      "maxDamage": 100,
+      "maxSpeed": 20,
+      "lifespan": 1,
+      "age": 0,
+      "bodyStructure": "invertebrate",
+      "avatars": {
+        "low": "🐝",
+        "medium": "bee_medium.png",
+        "high": "bee_high.png"
+      }
+    },
+    "systems": {
+      "perception": {
+        "interactionRadius": 40,
+        "currentHealth": 15,
+        "currentMood": "happy",
+        "diet": {
+          "picks": [],
+          "hunts": [],
+          "parasites": []
+        }
+      },
+      "motor": {
+        "currentSpeed": 15,
+        "stamina": 20
+      },
+      "reproduction": {
+        "reproductiveStrategy": "sexual",
+        "selection": "r",
+        "sex": "f"
+      },
+      "decision": {
+        "behavior": "territorial",
+        "social": {
+          "obedience": 0.7,
+          "formsGroups": true,
+          "spatialArragementStrategy": "tree",
+          "socialHierarchyType": "dominance"
+        }
+      }
+    }
+  }
+}

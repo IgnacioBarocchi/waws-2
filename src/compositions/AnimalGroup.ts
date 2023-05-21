@@ -5,15 +5,15 @@ import FollowLeaderLinearStrategy from "../strategies/group/FollowLeaderLinearSt
 import Plant from "../entities/unit/Plant";
 import FollowLeaderRingStrategy from "../strategies/group/FollowLeaderRingStrategy";
 import FollowLeaderTreeStrategy from "../strategies/group/FollowLeaderTreeStrategy";
+import { SocialHierarchyType } from "../data/interface/AnimalRecordType";
 const generator = GeneratorService.getInstance([]);
 
 type CommunityType = "family" | "society";
-type SocialHierarchyType = "dominance" | "patriarchy" | "matriarchy";
 
 // enum Arragement {
 //   FollowLeaderLinear = "linear",
-//   FollowLeaderTree = "tree",
-//   ProtectLeader = "circular",
+//   FollowLeaderTree =    "tree",
+//   ProtectLeader = "    circular",
 // }
 
 export interface Observer {
@@ -77,8 +77,14 @@ class AnimalGroup implements Observer {
       100
     );
     this.followLeaderRingStrategy = new FollowLeaderRingStrategy(this, 250);
+    this.currentStrategy = this.followLeaderLinearStrategy;
 
-    this.currentStrategy = this.followLeaderRingStrategy;
+    if (species === "wolf") {
+      this.currentStrategy = this.followLeaderTreeStrategy;
+    }
+    if (species === "bee") {
+      this.currentStrategy = this.followLeaderRingStrategy;
+    }
   }
 
   updateOrderFor(member: Animal, order: Order): void {}

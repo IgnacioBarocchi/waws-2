@@ -1,4 +1,5 @@
 import { Observer, Order } from "../../compositions/AnimalGroup";
+import AnimalRecordType from "../../data/interface/AnimalRecordType";
 import Animal from "../../entities/unit/Animal";
 import AnimalMotorSystem from "../physical/AnimalMotorSystem";
 import AnimalDecisionSystem from "./AnimalDecisionSystem";
@@ -37,7 +38,7 @@ export default class AnimalPerceptionSystem {
   private orderFromLeader: Order | null;
 
   // todo: add thresholds and initials
-  constructor() {
+  constructor(systemData: AnimalRecordType["systems"]["perception"]) {
     // animal: Animal
     // this.animal = animal;
     // this.decisionSystem = this.animal.decisionSystem;

@@ -1,10 +1,14 @@
+import AnimalRecordType from "../../data/interface/AnimalRecordType";
 import Animal from "../../entities/unit/Animal";
 import GeneratorService from "../../services/GeneratorService";
 const generator = GeneratorService.getInstance([]);
 
 export default class AnimalReproductiveSystem {
   public sex: "f" | "m";
-  constructor(animal: Animal) {
+  constructor(
+    animal: Animal,
+    systemData: AnimalRecordType["systems"]["reproduction"]
+  ) {
     const sexer = animal.DNASequence;
     this.sex = ["f", "m"][
       Math.floor(generator.generateRandomNumber(sexer) * 2)

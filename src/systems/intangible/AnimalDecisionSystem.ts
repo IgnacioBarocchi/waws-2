@@ -3,6 +3,7 @@ import Animal from "../../entities/unit/Animal";
 import AnimalMotorSystem from "../physical/AnimalMotorSystem";
 import AnimalReproductiveSystem from "../physical/AnimalReproductiveSystem";
 import AnimalPerceptionSystem from "./AnimalPerceptionSystem";
+import AnimalRecordType from "../../data/interface/AnimalRecordType";
 
 /**
 
@@ -37,7 +38,8 @@ export default class AnimalDecisionSystem {
   constructor(
     perceptionSystem: AnimalPerceptionSystem,
     motorSystem: AnimalMotorSystem,
-    reproductiveSystem: AnimalReproductiveSystem
+    reproductiveSystem: AnimalReproductiveSystem,
+    systemData: AnimalRecordType["systems"]["decision"]
   ) {
     this.motorSystem = motorSystem;
     this.perceptionSystem = perceptionSystem;
@@ -51,6 +53,10 @@ export default class AnimalDecisionSystem {
     ) {
       if (this.perceptionSystem.getOrderFromLeader.type === "move") {
         const { payload: position } = this.perceptionSystem.getOrderFromLeader;
+
+        const leaderTurnAngle =
+          this.perceptionSystem.getGroupLeader.motorSystem.accessTurnAngle;
+        if (leaderTurnAngle) this.motorSystem.setTurnAngle = leaderTurnAngle;
 
         this.motorSystem.obeyMoveTo(position as XYPosition, deltaTime);
       }

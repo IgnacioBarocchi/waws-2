@@ -7,6 +7,7 @@ import Walk from "../../strategies/movement/Walk";
 import Animal from "../../entities/unit/Animal";
 import { IPhysicalSystem } from "./IPhysicalSystem";
 import GeneratorService from "../../services/GeneratorService";
+import AnimalRecordType from "../../data/interface/AnimalRecordType";
 const generator = GeneratorService.getInstance([]);
 
 enum MoveStyle {
@@ -17,12 +18,13 @@ enum MoveStyle {
   Random = "random",
 }
 
-enum MoveActon {
+enum MoveAction {
   Roaming = "roaming",
   Following = "following",
   Scaping = "scaping",
   Avoiding = "avoiding",
   Chasing = "chasing",
+  Obeying = "obeying",
 }
 
 /**
@@ -48,24 +50,37 @@ export default class AnimalMotorSystem implements IMovable, IPhysicalSystem {
   public speed: number;
   public direction: number;
   public currentMoveStyle: MoveStyle;
-  public currentAction: MoveActon;
+  public currentMoveAction: MoveAction;
   private turnAngle: number;
   private animalSpatialMemory: XYPosition[];
   private currentSpatialMemoryIndex: number;
+  // * Action controls
+  private isSleeping: boolean;
+  private sleepingTime: number;
+  private isResting: boolean;
+  private restingTime: number;
 
-  constructor(animal: Animal, speed: number) {
+  constructor(
+    animal: Animal,
+    systemData: AnimalRecordType["systems"]["motor"]
+  ) {
     this.animal = animal;
-    this.speed = speed;
+    this.speed = systemData.currentSpeed;
     this.direction = this.getSystemEntrophy() * Math.PI * 2;
     this.walkStrategy = new Walk(animal);
     this.trotStrategy = new Trot(animal);
     this.runStrategy = new Run(animal);
     this.currentMoveStyle = MoveStyle.Straight;
-    this.currentAction = MoveActon.Roaming;
+    this.currentMoveAction = MoveAction.Roaming;
+
     this.currentMoveStrategy = this.walkStrategy;
-    this.turnAngle = 0;
     this.animalSpatialMemory = [this.animal.position];
+    this.turnAngle = 0;
     this.currentSpatialMemoryIndex = 0;
+    this.isSleeping = false;
+    this.sleepingTime = 0;
+    this.isResting = false;
+    this.restingTime = 0;
   }
 
   /**
@@ -91,6 +106,7 @@ export default class AnimalMotorSystem implements IMovable, IPhysicalSystem {
     } else {
       this.move(deltaTime);
     }
+    this.currentMoveAction = MoveAction.Roaming;
   }
 
   /**
@@ -114,6 +130,7 @@ export default class AnimalMotorSystem implements IMovable, IPhysicalSystem {
       this.currentMoveStyle = MoveStyle.Circular;
       this.moveTo(targetPosition, deltaTime);
     }
+    this.currentMoveAction = MoveAction.Following;
   }
 
   /**
@@ -125,6 +142,7 @@ export default class AnimalMotorSystem implements IMovable, IPhysicalSystem {
     this.currentMoveStrategy = this.runStrategy;
     this.currentMoveStyle = MoveStyle.ZigZag;
     this.moveFrom({ x: animal.position.x, y: animal.position.y }, deltaTime);
+    this.currentMoveAction = MoveAction.Scaping;
   }
 
   /**
@@ -136,6 +154,7 @@ export default class AnimalMotorSystem implements IMovable, IPhysicalSystem {
     this.currentMoveStrategy = this.trotStrategy;
     this.currentMoveStrategy = this.trotStrategy;
     this.moveFrom({ x: animal.position.x, y: animal.position.y }, deltaTime);
+    this.currentMoveAction = MoveAction.Avoiding;
   }
 
   /**
@@ -147,6 +166,7 @@ export default class AnimalMotorSystem implements IMovable, IPhysicalSystem {
     this.currentMoveStrategy = this.runStrategy;
     this.currentMoveStyle = MoveStyle.ZigZag;
     this.moveTo({ x: animal.position.x, y: animal.position.y }, deltaTime);
+    this.currentMoveAction = MoveAction.Chasing;
   }
 
   /**
@@ -217,7 +237,6 @@ export default class AnimalMotorSystem implements IMovable, IPhysicalSystem {
   */
   private move(deltaTime: number): void {
     this.moveStyleTimer += deltaTime;
-
     this.currentMoveStrategy.goTo(
       this.calculateNewPosition(deltaTime),
       deltaTime
@@ -361,7 +380,12 @@ export default class AnimalMotorSystem implements IMovable, IPhysicalSystem {
     return this.turnAngle;
   }
 
+  public set setTurnAngle(v: number) {
+    this.turnAngle = v;
+  }
+
   public get obeyMoveTo() {
+    this.currentMoveAction = MoveAction.Obeying;
     return this.moveTo;
   }
 }

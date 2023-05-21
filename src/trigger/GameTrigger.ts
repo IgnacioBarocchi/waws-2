@@ -1,3 +1,4 @@
+import { XYPosition } from "reactflow";
 import AnimalGroup from "../compositions/AnimalGroup";
 import PlantFactory from "../entities/construction/PlantFactory";
 import Animal from "../entities/unit/Animal";
@@ -95,38 +96,88 @@ export default class GameTrigger extends Trigger {
   }
 
   private initializeUnitsForDevelopmentContext() {
-    // this.objectManager.constructions = [
-    //   new PlantFactory(
-    //     `PlantFactory-${generator.generateRandomID()}`,
-    //     { x: 0, y: 0 },
-    //     this.objectManager
-    //   ),
-    // ];
-    // this.objectManager.createPlant(
-    //   `Oak-${generator.generateRandomID()}`,
-    //   "oak",
-    //   { x: 0, y: 50 }
-    // );
-    const leader = this.objectManager.createAnimal("the-leader", "lion", {
-      x: 50,
-      y: 50,
-    });
-    leader.age = 500;
-    leader.reproductiveSystem.sex = "m";
+    this.testAnimalGroups([
+      {
+        species: "bee",
+        sizes: 19,
+        communityType: "society",
+        origin: { x: 10, y: 10 },
+      },
+      {
+        species: "wolf",
+        sizes: 14,
+        communityType: "society",
+        origin: { x: 50, y: 50 },
+      },
+      {
+        species: "ant",
+        sizes: 14,
+        communityType: "society",
+        origin: { x: 20, y: 20 },
+      },
+    ]);
+  }
 
-    for (let i = 0; i < 18; i++) {
-      this.objectManager.createAnimal(null, "lion", { x: i, y: i + 10 });
+  private testAnimalGroups(
+    groupsData: {
+      species: string;
+      sizes: number;
+      communityType: "family" | "society";
+      origin: XYPosition;
+    }[]
+  ) {
+    for (let index = 0; index < groupsData.length; index++) {
+      const { species, sizes, communityType, origin } = groupsData[index];
+      let members = [];
+
+      for (let i = 0; i < sizes - 1; i++) {
+        const member = this.objectManager.createAnimal(null, species, {
+          x: origin.x + index,
+          y: origin.y + index + 10,
+        });
+
+        members.push(member);
+      }
+
+      const leader = this.objectManager.createAnimal(
+        `the-leader-of-the-${species}s`,
+        species,
+        {
+          x: members[0].position.x + 10,
+          y: members[0].position.y + 10,
+        }
+      );
+      leader.age = 500;
+      leader.reproductiveSystem.sex = "m";
+
+      members.push(leader);
+
+      const animalGroup = new AnimalGroup(
+        null,
+        members,
+        communityType,
+        null,
+        species
+      );
+      animalGroup.tick(0.1);
+
+      this.objectManager?.compositions?.animalGroups?.push(animalGroup);
     }
+  }
 
-    const animalGroup = new AnimalGroup(
-      null,
-      this.objectManager.animals,
-      "society",
-      null,
-      "lion"
+  private testMicrobes() {
+    this.objectManager.constructions = [
+      new PlantFactory(
+        `PlantFactory-${generator.generateRandomID()}`,
+        { x: 0, y: 0 },
+        this.objectManager
+      ),
+    ];
+    this.objectManager.createPlant(
+      `Oak-${generator.generateRandomID()}`,
+      "oak",
+      { x: 0, y: 50 }
     );
-    animalGroup.tick(0.1);
-    this.objectManager?.compositions?.animalGroups?.push(animalGroup);
   }
 }
 

@@ -25,6 +25,7 @@ import NodeComponents from "../../components/NodeTypes/NodeComponents";
 import { DEFAULT_GAME_SPEED } from "../../constants/config/game";
 import { useObjectManager } from "../../containers/ObjectManagerContext";
 import { useGameEngine } from "../../containers/GameEngineContext";
+import UI from "../UI";
 
 function Core() {
   const selectedBuilding = "PlantFactory";
@@ -172,7 +173,7 @@ function Core() {
         // * Style
         fitView
       >
-        <Background variant={BackgroundVariant.Cross} gap={50} />
+        <UI />
       </Scenario>
     </div>
   );

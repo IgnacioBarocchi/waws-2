@@ -1,94 +1,75 @@
-import "./App.css";
-import { useMemo, useEffect as useGameTriggerEffect } from "react";
-
+import {
+  useState,
+  useMemo,
+  useEffect as useGameTriggerEffect,
+  useEffect as useLoadDataEffect,
+} from "react";
 import GameEngine from "./services/@GameEngine";
 import ObjectManager from "./services/ObjectManager";
 import GameTrigger from "./trigger/GameTrigger";
-
 import { GameEngineContext } from "./containers/GameEngineContext";
 import { ObjectManagerContext } from "./containers/ObjectManagerContext";
-
 import Core from "./components/Core";
+import { AppUIStateProvider, useAppUIState } from "./containers/AppUIContext";
+import GlobalGameEntitiesStyler from "./containers/GlobalGameEntitiesStyler";
+import { loadAnimalRecordTypes } from "./workers/loadAnimalRecordTypes";
+import LocalStorageService from "./services/LocalStorageService";
 
 const objectManager = new ObjectManager("DEV", {});
 const gameEngine = new GameEngine(objectManager);
-
+const localStorageService = LocalStorageService.getInstance();
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  const {
+    UIState: { UIHidden },
+  } = useAppUIState();
+
   const gameTrigger = useMemo(
     () => new GameTrigger(objectManager),
     [objectManager]
   );
 
   useGameTriggerEffect(() => {
-    if (!objectManager.gameIsCreated) gameTrigger.trigger("start game");
+    if (!isLoading && !objectManager.gameIsCreated)
+      gameTrigger.trigger("start game");
+  }, [isLoading]);
+
+  useLoadDataEffect(() => {
+    const loadData = async () => {
+      try {
+        // Check if animal record types are already stored in the storage
+        const storedAnimalRecordTypes =
+          localStorageService.getAnimalRecordTypes();
+        alert(storedAnimalRecordTypes);
+        if (storedAnimalRecordTypes) {
+          setIsLoading(false);
+        } else {
+          // Animal record types not stored, load them from the JSON file
+          const animalRecordTypes = await loadAnimalRecordTypes();
+          localStorageService.setAnimalRecordTypes(animalRecordTypes);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Error loading animal record types:", error);
+      }
+    };
+
+    loadData();
   });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <ObjectManagerContext.Provider value={objectManager}>
-      <GameEngineContext.Provider value={gameEngine}>
-        <Core />
-      </GameEngineContext.Provider>
-    </ObjectManagerContext.Provider>
+    <AppUIStateProvider>
+      <ObjectManagerContext.Provider value={objectManager}>
+        <GameEngineContext.Provider value={gameEngine}>
+          <GlobalGameEntitiesStyler hideEdges={UIHidden} />
+          <Core />
+        </GameEngineContext.Provider>
+      </ObjectManagerContext.Provider>
+    </AppUIStateProvider>
   );
 }
-
-/*import { useEffect, useMemo, useState } from "react";
-import LocalStorageService from "./services/LocalStorageService";
-import GameTrigger from "./trigger/GameTrigger";
-import ObjectManager from "./services/ObjectManager";
-import GameEngine from "./services/@GameEngine";*/
-/*
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [shouldTrigger, setShouldTrigger] = useState<boolean>(false);
-  const localStorageService = LocalStorageService.getInstance();
-
-  const loadObject = async () => {
-    if (!localStorageService.getGameEngine()) {
-      const objectManager = new ObjectManager("DEV", {});
-      const engine = new GameEngine(objectManager);
-      localStorageService.setGameEngine(engine);
-      setShouldTrigger(true);
-    }
-  };
-
-  useEffect(() => {
-    loadObject();
-    if (shouldTrigger) {
-      const objectManager = localStorageService.getGameEngine().objectManager;
-      const gameTrigger = new GameTrigger(objectManager);
-
-      if (!objectManager.gameIsCreated) {
-        gameTrigger.trigger("start game");
-        setShouldTrigger(false);
-        setIsLoading(false);
-      }
-    }
-  }, []);
-  if (isLoading) return <div>is loading</div>;
-  */
-
-/*
-onNodeClick={(_, node) => {
-  dispatch({
-    type: "SET_SELECTED_UNIT",
-    payload: SentientUnit.getSentientUnitInstance(
-      node.id
-    ) as SentientUnit,
-  });
-}}
-*/
-
-// const existingData = localStorageService.getData();
-// const keys = ["recodTypes", "gameEngine", "UIState"];
-// if (existingData) {
-//   alert(JSON.stringify(existingData));
-//   // setIsLoading(false);
-//   return;
-// }
-
-// const dataFromWorker = await loadCollection();
-// if (dataFromWorker) {
-//   localStorageService.setdata(dataFromWorker);
-//   console.log("entities are loaded");
-//   setIsLoading(false);
-// }
