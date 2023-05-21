@@ -39,30 +39,33 @@ export type UnitType =
 export const Label = styled.label<{
   unitType: UnitType;
   selected: boolean;
-  hidden: boolean;
+  flowHidden: boolean;
 }>`
   position: relative;
   font-size: 2em;
-  border: ${({ unitType, selected }) => `${selected ? 3 : 2}px solid ${
-    {
-      Animal: "#FF5733",
-      Corpse: "#8B4513",
-      Dung: "#964B00",
-      Egg: "#FDEE00",
-      Microbe: "#00FF00",
-      Plant: "#00FF7F",
-      Rock: "#808080",
-    }[unitType]
-  }
-  `};
+  border: ${({ selected }) => `${selected ? 3 : 2}px solid transparent`};
   border-radius: 50%;
-  border: ${({ hidden }) => hidden && "none"};
+  border-color: ${({ flowHidden, unitType }) =>
+    flowHidden
+      ? "transparent"
+      : `${
+          {
+            Animal: "#FF5733",
+            Corpse: "#8B4513",
+            Dung: "#964B00",
+            Egg: "#FDEE00",
+            Microbe: "#00FF00",
+            Plant: "#00FF7F",
+            Rock: "#808080",
+          }[unitType]
+        }`};
 `;
 
 const UnitHandle = styled(Handle).attrs((props: { hidden: boolean }) => ({
   hidden: props.hidden,
 }))`
-  visibility: ${({ hidden }) => (hidden ? "hidden" : "")};
+  visibility: ${({ hidden }) => hidden && "none"};
+  display: ${({ hidden }) => hidden && "none"};
   width: "3px";
   height: "3px";
 `;
@@ -137,6 +140,29 @@ export function Unit3DModel({ size, color }: Unit3DModelProps) {
 
   return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
 }
+
+interface NodeAvatarProps {
+  turnAngle: number;
+  render3D: boolean;
+  arrowHidden: boolean;
+  lowResAvatar: string;
+}
+
+export const NodeAvatar = ({
+  arrowHidden,
+  turnAngle,
+  render3D,
+  lowResAvatar,
+}: NodeAvatarProps) => {
+  if (render3D) return <Unit3DModel size={1} color={0x00ff00} />;
+
+  return (
+    <div>
+      {!arrowHidden && <DirectionArrow turnAngle={Number(turnAngle)} />}
+      <span>{lowResAvatar}</span>
+    </div>
+  );
+};
 // Render the scene
 // function animate() {
 //   requestAnimationFrame(animate);

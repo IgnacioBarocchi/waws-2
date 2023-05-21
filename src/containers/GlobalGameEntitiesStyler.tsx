@@ -1,6 +1,7 @@
 import { createGlobalStyle } from "styled-components";
+import { useAppUIState } from "./AppUIContext";
 
-const GlobalGameEntitiesStyler = createGlobalStyle<{ hideEdges: boolean }>`
+const GlobalGameEntitiesStyle = createGlobalStyle<{ hideEdges: boolean }>`
 .react-flow .react-flow__handle {
   background-color: #784be8;
 }
@@ -39,6 +40,12 @@ const GlobalGameEntitiesStyler = createGlobalStyle<{ hideEdges: boolean }>`
 
 .commited .react-flow__edge-path {
   stroke: red;
+}
+
+.react-flow__edge-path {
+  display:${({ hideEdges }) => {
+    return hideEdges ? "none" : "";
+  }}
 }
 
 
@@ -93,4 +100,11 @@ code {
 }
 `;
 
+const GlobalGameEntitiesStyler = () => {
+  const {
+    UIState: { UIHidden },
+  } = useAppUIState();
+
+  return <GlobalGameEntitiesStyle hideEdges={UIHidden} />;
+};
 export default GlobalGameEntitiesStyler;

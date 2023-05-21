@@ -3,6 +3,7 @@ import { useAppUIState } from "../../containers/AppUIContext";
 import {
   DirectionArrow,
   Label,
+  NodeAvatar,
   SourceUnitHandle,
   TargetUnitHandle,
   Unit3DModel,
@@ -39,23 +40,22 @@ function UnitNode({
         unitType={unitType as unknown as UnitType}
         hidden={UIHidden}
       />
+
       <Label
         htmlFor={String(unitType)}
         unitType={unitType as unknown as UnitType}
         selected={selected as unknown as boolean}
-        hidden={UIHidden}
+        flowHidden={UIHidden}
       >
-        {isAnimal && !UIHidden && (
-          <DirectionArrow turnAngle={Number(publicInstanceData.turnAngle)} />
-        )}
-
-        {render3D ? (
-          <Unit3DModel size={1} color={0x00ff00} />
-        ) : (
-          <span>{lowResAvatar}</span>
-        )}
+        <NodeAvatar
+          arrowHidden={!isAnimal || UIHidden}
+          turnAngle={Number(publicInstanceData.turnAngle)}
+          render3D={render3D}
+          lowResAvatar={lowResAvatar}
+        />
       </Label>
 
+      {/* //* Only animals can create outbound relationships */}
       {isAnimal && (
         <SourceUnitHandle id={String(nodeData.id)} hidden={UIHidden} />
       )}

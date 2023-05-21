@@ -22,10 +22,6 @@ const localStorageService = LocalStorageService.getInstance();
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
-  const {
-    UIState: { UIHidden },
-  } = useAppUIState();
-
   const gameTrigger = useMemo(
     () => new GameTrigger(objectManager),
     [objectManager]
@@ -67,7 +63,7 @@ export default function App() {
       <ObjectManagerContext.Provider value={objectManager}>
         <GameEngineContext.Provider value={gameEngine}>
           <ThreeProvider>
-            <GlobalGameEntitiesStyler hideEdges={UIHidden} />
+            <GlobalGameEntitiesStyler />
             <ScenarioProvider>
               <Core />
             </ScenarioProvider>
