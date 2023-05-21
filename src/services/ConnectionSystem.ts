@@ -43,6 +43,7 @@ export default class ConnectionSystem implements IFlowable {
     store: IStore,
     getClosestEdge: (node: Node) => Edge<any> | null
   ) {
+    console.log("callback passed: " + JSON.stringify(getClosestEdge));
     if (!store || Object.keys(store).length === 0) {
       return () => {
         console.warn("No store found");
@@ -127,7 +128,6 @@ export default class ConnectionSystem implements IFlowable {
         return null;
       }
 
-      // console.info(JSON.stringify(newEdge));
       return newEdge;
     };
 

@@ -28,6 +28,8 @@ import UI from "../UI";
 function Core() {
   const selectedBuilding = "PlantFactory";
   const objectManager = useObjectManager();
+  const initalNodes = objectManager.getData(undefined).nodes;
+  const initalEdges = objectManager.getEdges();
   const engine = useGameEngine();
 
   // ! Mutable state
@@ -44,13 +46,9 @@ function Core() {
   const connectingNodeId = useRef(null);
 
   // * Use React Flow variables
-  const [nodes, setNodes, onNodesChange] = useNodesState(
-    objectManager.getData(undefined).nodes
-  );
+  const [nodes, setNodes, onNodesChange] = useNodesState(initalNodes);
 
-  const [edges, setEdges, onEdgesChange] = useEdgesState(
-    objectManager.getEdges()
-  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initalEdges);
 
   // * Load React Hooks dependencies in the class context
   // Todo: find another way
@@ -70,7 +68,6 @@ function Core() {
 
   useKeyboardEventEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
-    console.count("is running: " + engine.running);
 
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isPlaying]);
@@ -141,8 +138,10 @@ function Core() {
      * @param {*} n The node to connect to the closest edge.
      * @returns {void}
      */
-    // Todo: Move to game engine play method
-    newNodes.forEach((n) => connectToClosestEdge(undefined, n));
+    newNodes.forEach((n) => {
+      console.log("connect loop");
+      connectToClosestEdge(undefined, n);
+    });
   };
 
   usePlayGameEffect(() => {

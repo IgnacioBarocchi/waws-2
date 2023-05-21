@@ -50,7 +50,6 @@ export default class Corpse
 
   decompose(): void {
     this.emitMicrobes(Corpse.BASE_MICROBES_AMOUT * 2);
-    console.info(`${this.id} will decompose`);
     this.objectManager.deleteInstance(this);
   }
 

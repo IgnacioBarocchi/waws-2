@@ -90,7 +90,6 @@ class AnimalGroup implements Observer {
   updateOrderFor(member: Animal, order: Order): void {}
 
   tick(deltaTime: number) {
-    console.log(deltaTime + " update!");
     this.updateSocialHierarchy();
     const positionsByMemebers: [Animal, XYPosition][] =
       this.currentStrategy.getPositionsForMembers();

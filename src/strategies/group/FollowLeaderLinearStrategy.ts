@@ -42,7 +42,6 @@ export default class FollowLeaderLinearStrategy {
       const targetUnit = this.group.accessSortedMembers[i + 1];
 
       if (follower instanceof Animal && targetUnit) {
-        console.log(follower.id + "the follower");
         follower.motorSystem.follow(targetUnit, deltaTime);
       }
     }
@@ -52,8 +51,6 @@ export default class FollowLeaderLinearStrategy {
         this.group.accessSortedMembers[
           this.group.accessSortedMembers.length - 1
         ];
-
-      console.log(lastMember.id + "the follower > " + lastMember.id);
 
       lastMember.motorSystem.follow(leader, deltaTime);
     }

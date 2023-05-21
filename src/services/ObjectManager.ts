@@ -72,25 +72,6 @@ export default class ObjectManager {
             c.tick(0.1);
           }
 
-          // se setea aca pero el componente memoizado lo remueve.
-          /*
-          const table = (c.type.toLowerCase() + "s") as
-            | "animals"
-            | "corpses"
-            | "dungs"
-            | "eggs"
-            | "microbes"
-            | "plants"
-            | "rocks";
-
-          const instance = this.getObjectById(c.id, table) as Animal;
-          if (instance && instance.type === "Animal") {
-            console.log(instance.motorSystem.accessTurnAngle);
-          }
-          const data = { ...c.data, ...instance };
-          alert(JSON.stringify(data.id));
-          */
-
           return {
             // @ts-ignore
             id: c.id,

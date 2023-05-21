@@ -1,11 +1,10 @@
 import React from "react";
 import ObjectManager from "./ObjectManager";
 import { Connection, Edge, Node } from "reactflow";
-import { IPlayable } from "./interfaces/IPlayable";
-import LocalStorageService from "./LocalStorageService";
+
 import ConnectionSystem from "./ConnectionSystem";
 
-export default class GameEngine implements IPlayable {
+export default class GameEngine {
   public running: boolean;
   public objectManager: ObjectManager;
   public connectionSystem: ConnectionSystem;
@@ -38,12 +37,6 @@ export default class GameEngine implements IPlayable {
     this.connectionSystem = new ConnectionSystem(this);
     this.hooksLoaded = false;
     this.gameSettings = gameSettings;
-  }
-
-  play(): void {
-    if (!this.hooksLoaded)
-      throw new Error("The object did not load the react hooks");
-    // this.connectionSystem.getConnectToClosestEdgeCallback();
   }
 
   public injectSetterHooks(
@@ -90,8 +83,15 @@ export default class GameEngine implements IPlayable {
   togglePause(): void {
     this.running = !this.running;
   }
-
-  save(): void {
-    LocalStorageService.getInstance().setData(this);
-  }
 }
+
+// save(): void {
+//   LocalStorageService.getInstance().setData(this);
+// }
+// play(): void {
+//   if (!this.hooksLoaded)
+//     throw new Error("The object did not load the react hooks");
+//   // this.connectionSystem.getConnectToClosestEdgeCallback();
+// }
+// import { IPlayable } from "./interfaces/IPlayable";
+// import LocalStorageService from "./LocalStorageService";
