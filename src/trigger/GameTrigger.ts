@@ -36,7 +36,10 @@ export default class GameTrigger extends Trigger {
       }
 
       if (this.objectManager.context === "DEV") {
-        this.initializeUnitsForDevelopmentContext();
+        this.initializeUnitsForDevelopmentContext({
+          animals: true,
+          animalsGroups: false,
+        });
         this.objectManager.gameIsCreated = true;
       }
 
@@ -95,27 +98,36 @@ export default class GameTrigger extends Trigger {
     return;
   }
 
-  private initializeUnitsForDevelopmentContext() {
-    this.testAnimalGroups([
-      {
-        species: "bee",
-        sizes: 19,
-        communityType: "society",
-        origin: { x: 10, y: 10 },
-      },
-      {
-        species: "wolf",
-        sizes: 14,
-        communityType: "society",
-        origin: { x: 50, y: 50 },
-      },
-      {
-        species: "ant",
-        sizes: 14,
-        communityType: "society",
-        origin: { x: 20, y: 20 },
-      },
-    ]);
+  private initializeUnitsForDevelopmentContext(init: {
+    animals: boolean;
+    animalsGroups: boolean;
+  }) {
+    if (init.animals) {
+      this.testAnimals(["wolf", "bee"]);
+    }
+
+    if (init.animalsGroups) {
+      this.testAnimalGroups([
+        {
+          species: "bee",
+          sizes: 19,
+          communityType: "society",
+          origin: { x: 10, y: 10 },
+        },
+        {
+          species: "wolf",
+          sizes: 14,
+          communityType: "society",
+          origin: { x: 50, y: 50 },
+        },
+        {
+          species: "ant",
+          sizes: 14,
+          communityType: "society",
+          origin: { x: 20, y: 20 },
+        },
+      ]);
+    }
   }
 
   private testAnimalGroups(
@@ -177,6 +189,15 @@ export default class GameTrigger extends Trigger {
       `Oak-${generator.generateRandomID()}`,
       "oak",
       { x: 0, y: 50 }
+    );
+  }
+
+  private testAnimals(species: string[]) {
+    species.forEach((s, i) =>
+      this.objectManager.createAnimal(null, s, {
+        x: i + 10,
+        y: i + 10,
+      })
     );
   }
 }

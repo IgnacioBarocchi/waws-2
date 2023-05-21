@@ -13,5 +13,7 @@ export default class Walk implements IMovementStrategy {
   }
   goTo(position: XYPosition, deltaTime: number) {
     this.animal.position = position;
+    this.animal.motorSystem.currentStamina =
+      this.animal.motorSystem.currentStamina - this.energyCostPerTick;
   }
 }

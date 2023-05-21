@@ -1,5 +1,11 @@
+import * as THREE from "three";
 import { Handle, Position } from "reactflow";
 import styled from "styled-components";
+import { useEffect, useRef } from "react";
+import { useThree } from "../../../containers/ThreeContext";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
+// @ts-ignore
+import wolf from "../../../assets/models/Wolf.fbx";
 
 const Arrow = styled.div<{ angle: number }>`
   position: absolute;
@@ -33,7 +39,7 @@ export type UnitType =
 export const Label = styled.label<{
   unitType: UnitType;
   selected: boolean;
-  UIHidden: boolean;
+  hidden: boolean;
 }>`
   position: relative;
   font-size: 2em;
@@ -50,13 +56,13 @@ export const Label = styled.label<{
   }
   `};
   border-radius: 50%;
-  border: ${({ UIHidden }) => UIHidden && "none"};
+  border: ${({ hidden }) => hidden && "none"};
 `;
 
-const UnitHandle = styled(Handle).attrs((props: { UIHidden: boolean }) => ({
-  UIHidden: props.UIHidden,
+const UnitHandle = styled(Handle).attrs((props: { hidden: boolean }) => ({
+  hidden: props.hidden,
 }))`
-  visibility: ${({ UIHidden }) => (UIHidden ? "hidden" : "")};
+  visibility: ${({ hidden }) => (hidden ? "hidden" : "")};
   width: "3px";
   height: "3px";
 `;
@@ -64,31 +70,81 @@ const UnitHandle = styled(Handle).attrs((props: { UIHidden: boolean }) => ({
 export const TargetUnitHandle = ({
   id,
   unitType,
-  UIHidden,
+  hidden,
 }: {
   id: string;
   unitType: UnitType;
-  UIHidden: boolean;
+  hidden: boolean;
 }) => (
   <UnitHandle
     id={id}
     type="target"
     position={String(unitType) === "Animal" ? Position.Left : Position.Top}
-    UIHidden={UIHidden}
+    hidden={hidden}
   />
 );
 
 export const SourceUnitHandle = ({
   id,
-  UIHidden,
+  hidden,
 }: {
   id: string;
-  UIHidden: boolean;
+  hidden: boolean;
 }) => (
-  <UnitHandle
-    id={id}
-    type="source"
-    position={Position.Right}
-    UIHidden={UIHidden}
-  />
+  <UnitHandle id={id} type="source" position={Position.Right} hidden={hidden} />
 );
+
+interface Unit3DModelProps {
+  size: number;
+  color: number;
+}
+
+export function Unit3DModel({ size, color }: Unit3DModelProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scene } = useThree();
+  useEffect(() => {
+    if (containerRef.current) {
+      // Create the renderer
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(
+        containerRef.current.offsetWidth,
+        containerRef.current.offsetHeight
+      );
+      containerRef.current.appendChild(renderer.domElement);
+      // Load the model with animations
+      const loader = new FBXLoader(); // Use FBXLoader for FBX format or GLTFLoader for GLB format
+      loader.load(
+        wolf, // Replace with the path to your model file
+        (object) => {
+          // alert(object);
+          // Handle animations
+          if (object.animations && object.animations.length > 0) {
+            const mixer = new THREE.AnimationMixer(object);
+            const clipAction = mixer.clipAction(object.animations[0]);
+            clipAction.play();
+          }
+
+          // Add the loaded model to the scene
+          scene.add(object);
+        },
+        undefined,
+        (error) => {
+          console.error("Error loading model:", error);
+        }
+      );
+    }
+  }, []);
+
+  return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
+}
+// Render the scene
+// function animate() {
+//   requestAnimationFrame(animate);
+//   renderer.render(scene, camera);
+
+//   // Update animations
+//   if (object.animations && object.animations.length > 0) {
+//     mixer.update(deltaTime);
+//   }
+// }
+// animate();

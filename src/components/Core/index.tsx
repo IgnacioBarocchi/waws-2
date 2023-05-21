@@ -10,8 +10,6 @@ import {
 } from "react";
 
 import {
-  Background,
-  BackgroundVariant,
   ReactFlow as Scenario,
   ReactFlowProvider as ScenarioProvider,
   addEdge,

@@ -1,21 +1,14 @@
-import { Handle, NodeTypes } from "reactflow";
-import styled from "styled-components";
+import { NodeTypes } from "reactflow";
 import { useAppUIState } from "../../containers/AppUIContext";
 import {
   DirectionArrow,
   Label,
   SourceUnitHandle,
   TargetUnitHandle,
+  Unit3DModel,
   UnitType,
 } from "./NodeTypesElements";
-
-const UnitHandle = styled(Handle).attrs((props: { UIHidden: boolean }) => ({
-  UIHidden: props.UIHidden,
-}))`
-  visibility: ${({ UIHidden }) => (UIHidden ? "hidden" : "")};
-  width: "3px";
-  height: "3px";
-`;
+import { useGameEngine } from "../../containers/GameEngineContext";
 
 function UnitNode({
   nodeData,
@@ -36,28 +29,35 @@ function UnitNode({
   } = nodeData;
 
   const isAnimal = String(unitType) === "Animal";
-
+  const graphics = useGameEngine().gameSettings.graphics;
+  const render3D = graphics === "h" && isAnimal;
+  const lowResAvatar = String(label);
   return (
     <>
       <TargetUnitHandle
         id={String(nodeData.id)}
         unitType={unitType as unknown as UnitType}
-        UIHidden={UIHidden}
+        hidden={UIHidden}
       />
       <Label
         htmlFor={String(unitType)}
         unitType={unitType as unknown as UnitType}
         selected={selected as unknown as boolean}
-        UIHidden={UIHidden}
+        hidden={UIHidden}
       >
         {isAnimal && !UIHidden && (
           <DirectionArrow turnAngle={Number(publicInstanceData.turnAngle)} />
         )}
-        {String(label)}
+
+        {render3D ? (
+          <Unit3DModel size={1} color={0x00ff00} />
+        ) : (
+          <span>{lowResAvatar}</span>
+        )}
       </Label>
 
       {isAnimal && (
-        <SourceUnitHandle id={String(nodeData.id)} UIHidden={UIHidden} />
+        <SourceUnitHandle id={String(nodeData.id)} hidden={UIHidden} />
       )}
     </>
   );

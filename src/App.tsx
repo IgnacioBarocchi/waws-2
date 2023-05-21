@@ -14,9 +14,10 @@ import { AppUIStateProvider, useAppUIState } from "./containers/AppUIContext";
 import GlobalGameEntitiesStyler from "./containers/GlobalGameEntitiesStyler";
 import { loadAnimalRecordTypes } from "./workers/loadAnimalRecordTypes";
 import LocalStorageService from "./services/LocalStorageService";
+import { ThreeProvider } from "./containers/ThreeContext";
 
 const objectManager = new ObjectManager("DEV", {});
-const gameEngine = new GameEngine(objectManager);
+const gameEngine = new GameEngine(objectManager, { graphics: "l", time: 1 });
 const localStorageService = LocalStorageService.getInstance();
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +42,6 @@ export default function App() {
         // Check if animal record types are already stored in the storage
         const storedAnimalRecordTypes =
           localStorageService.getAnimalRecordTypes();
-        alert(storedAnimalRecordTypes);
         if (storedAnimalRecordTypes) {
           setIsLoading(false);
         } else {
@@ -66,8 +66,10 @@ export default function App() {
     <AppUIStateProvider>
       <ObjectManagerContext.Provider value={objectManager}>
         <GameEngineContext.Provider value={gameEngine}>
-          <GlobalGameEntitiesStyler hideEdges={UIHidden} />
-          <Core />
+          <ThreeProvider>
+            <GlobalGameEntitiesStyler hideEdges={UIHidden} />
+            <Core />
+          </ThreeProvider>
         </GameEngineContext.Provider>
       </ObjectManagerContext.Provider>
     </AppUIStateProvider>

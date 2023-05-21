@@ -21,8 +21,15 @@ export default class GameEngine implements IPlayable {
     (edgeParams: Edge | Connection, edges: Edge[]): Edge[];
     (edgeParams: Edge | Connection, edges: Edge[]): Edge[];
   };
+  gameSettings: { graphics: "l" | "m" | "h"; time: any };
 
-  constructor(objectManager: ObjectManager) {
+  constructor(
+    objectManager: ObjectManager,
+    gameSettings: {
+      graphics: "l" | "m" | "h";
+      time: any;
+    }
+  ) {
     this.running = true;
     this.objectManager = objectManager;
     this._setNodes = null as any;
@@ -30,6 +37,7 @@ export default class GameEngine implements IPlayable {
     this._addEdge = null as any;
     this.connectionSystem = new ConnectionSystem(this);
     this.hooksLoaded = false;
+    this.gameSettings = gameSettings;
   }
 
   play(): void {

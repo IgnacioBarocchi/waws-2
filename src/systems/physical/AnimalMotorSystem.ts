@@ -59,6 +59,8 @@ export default class AnimalMotorSystem implements IMovable, IPhysicalSystem {
   private sleepingTime: number;
   private isResting: boolean;
   private restingTime: number;
+  maxStamina: number;
+  currentStamina: number;
 
   constructor(
     animal: Animal,
@@ -66,6 +68,8 @@ export default class AnimalMotorSystem implements IMovable, IPhysicalSystem {
   ) {
     this.animal = animal;
     this.speed = systemData.currentSpeed;
+    this.maxStamina = systemData.stamina;
+    this.currentStamina = systemData.stamina;
     this.direction = this.getSystemEntrophy() * Math.PI * 2;
     this.walkStrategy = new Walk(animal);
     this.trotStrategy = new Trot(animal);
