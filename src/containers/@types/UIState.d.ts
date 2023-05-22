@@ -7,6 +7,11 @@ export type TOGGLE_UI_VISIBILITYAction = {
   type: "TOGGLE_UI_VISIBILITY";
 };
 
-export type Action = TOGGLE_UI_VISIBILITYAction;
+export type SET_ENVIROMENT_DATAAction = {
+  type: "SET_ENVIROMENT_DATA";
+  payload: PublicEnvironmentData;
+};
+
+export type Action = TOGGLE_UI_VISIBILITYAction | SET_ENVIROMENT_DATAAction;
 
 export type Dispatch = (val: Action) => void;

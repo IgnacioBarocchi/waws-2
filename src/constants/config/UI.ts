@@ -1,4 +1,17 @@
 export const INITIAL_UI_STATE = {
-  UIHidden: false,
+  UIHidden: true,
+  enviromentData: {
+    time: {
+      currentTime: undefined,
+      currentDayMoment: undefined,
+      currentSeason: undefined,
+    },
+    temperature: {
+      currentTemperature: undefined,
+    },
+    weather: {
+      isRaining: undefined,
+      isSnowing: undefined,
+    },
+  },
 };
-// react-flow__edges

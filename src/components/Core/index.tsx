@@ -24,6 +24,7 @@ import { DEFAULT_GAME_SPEED, MIN_DISTANCE } from "../../constants/config/game";
 import { useObjectManager } from "../../containers/ObjectManagerContext";
 import { useGameEngine } from "../../containers/GameEngineContext";
 import UI from "../UI";
+import { useAppUIState } from "../../containers/AppUIContext";
 
 function Core() {
   const selectedBuilding = "PlantFactory";
@@ -31,6 +32,8 @@ function Core() {
   const initalNodes = objectManager.getData(undefined).nodes;
   const initalEdges = objectManager.getEdges();
   const engine = useGameEngine();
+
+  const { dispatch } = useAppUIState();
 
   // ! Mutable state
   const store = useStoreApi();
@@ -191,11 +194,17 @@ function Core() {
    * @returns {void}
    */
   const play = (): void => {
+    engine.enviromentSystem.advanceTime(1);
+    dispatch({
+      type: "SET_ENVIROMENT_DATA",
+      payload: engine.enviromentSystem.getData(),
+    });
+
     /**
      * Retrieves indexed nodes from the object manager.
      * @type {Array}
      */
-    const indexedNodes: Array<any> = objectManager.getData("tick").nodes;
+    const indexedNodes: Array<any> = objectManager.getData(undefined).nodes;
 
     /**
      * Combines existing nodes with indexed nodes and filters out any falsy values.

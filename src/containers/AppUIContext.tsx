@@ -17,6 +17,12 @@ const UIStateReducer = (UIState: UIState, action: Action): UIState => {
         ...UIState,
         UIHidden: !UIState.UIHidden,
       };
+
+    case "SET_ENVIROMENT_DATA":
+      return {
+        ...UIState,
+        enviromentData: action.payload,
+      };
     default:
       return UIState;
   }

@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { useAppUIState } from "../../containers/AppUIContext";
 import { Background, BackgroundVariant, MiniMap, Panel } from "reactflow";
+import WeatherComponent from "./UIElements";
+import { PublicEnvironmentData } from "../../services/EnviromentSystem";
 
 const UI = () => {
   const { dispatch } = useAppUIState();
@@ -13,7 +15,10 @@ const UI = () => {
         </button>
       </Panel>
       <Panel position="top-center">
-        <div>modal</div>
+        <WeatherComponent
+        // @ts-ignore
+        // data={UIState.enviromentData}
+        />
       </Panel>
 
       <Panel position="bottom-left">

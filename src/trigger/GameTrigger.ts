@@ -37,8 +37,8 @@ export default class GameTrigger extends Trigger {
 
       if (this.objectManager.context === "DEV") {
         this.initializeUnitsForDevelopmentContext({
-          animals: false,
-          animalsGroups: true,
+          animals: true,
+          animalsGroups: false,
         });
         this.objectManager.gameIsCreated = true;
       }
@@ -103,7 +103,7 @@ export default class GameTrigger extends Trigger {
     animalsGroups: boolean;
   }) {
     if (init.animals) {
-      this.testAnimals(["wolf", "bee"]);
+      this.testAnimals(["wolf"]);
     }
 
     if (init.animalsGroups) {

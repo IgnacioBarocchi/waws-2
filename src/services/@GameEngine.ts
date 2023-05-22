@@ -3,12 +3,15 @@ import ObjectManager from "./ObjectManager";
 import { Connection, Edge, Node } from "reactflow";
 
 import ConnectionSystem from "./ConnectionSystem";
+import EnviromentSystem from "./EnviromentSystem";
 
 export default class GameEngine {
   public running: boolean;
   public objectManager: ObjectManager;
   public connectionSystem: ConnectionSystem;
   public hooksLoaded: boolean;
+  public enviromentSystem: EnviromentSystem;
+
   private _setNodes: React.Dispatch<
     React.SetStateAction<Node<any, string | undefined>[]>
   >;
@@ -23,7 +26,9 @@ export default class GameEngine {
   gameSettings: { graphics: "l" | "m" | "h"; time: any };
 
   constructor(
+    enviromentSystem: EnviromentSystem,
     objectManager: ObjectManager,
+
     gameSettings: {
       graphics: "l" | "m" | "h";
       time: any;
@@ -35,6 +40,7 @@ export default class GameEngine {
     this._setEdges = null as any;
     this._addEdge = null as any;
     this.connectionSystem = new ConnectionSystem(this);
+    this.enviromentSystem = enviromentSystem;
     this.hooksLoaded = false;
     this.gameSettings = gameSettings;
   }

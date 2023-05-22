@@ -16,8 +16,40 @@ import { loadAnimalRecordTypes } from "./workers/loadAnimalRecordTypes";
 import LocalStorageService from "./services/LocalStorageService";
 import { ThreeProvider } from "./containers/ThreeContext";
 import { ReactFlowProvider as ScenarioProvider } from "reactflow";
+import EnviromentSystem, {
+  BiomeType,
+  DayMoment,
+  SeasonType,
+} from "./services/EnviromentSystem";
+
+const timeSettings = {
+  startingTime: 10,
+  startingDayMoment: DayMoment.Day,
+  startingSeason: SeasonType.Summer,
+  ticksPerMinute: 10,
+  startingTick: 10,
+  totalDayMinutes: 10,
+};
+
+const biome = {
+  temperature: 545,
+  chanceOfRain: 0.4,
+  chanceOfSnow: 0.5,
+};
+
+// BiomeType.Forest
 const objectManager = new ObjectManager("DEV", {});
-const gameEngine = new GameEngine(objectManager, { graphics: "l", time: 1 });
+const environment = new EnviromentSystem(
+  BiomeType.Forest,
+  timeSettings,
+  objectManager,
+  1
+);
+
+const gameEngine = new GameEngine(environment, objectManager, {
+  graphics: "l",
+  time: 1,
+});
 const localStorageService = LocalStorageService.getInstance();
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);

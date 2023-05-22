@@ -28,6 +28,29 @@ export interface Biome {
   chanceOfSnow: number;
 }
 
+const biomeSettingsByType = {
+  [BiomeType.Forest]: {
+    temperature: 10,
+    chanceOfRain: 0.4,
+    chanceOfSnow: 0.3,
+  },
+  [BiomeType.Desert]: {
+    temperature: 30,
+    chanceOfRain: 0.2,
+    chanceOfSnow: 0,
+  },
+  [BiomeType.Arctic]: {
+    temperature: 5,
+    chanceOfRain: 0.3,
+    chanceOfSnow: 0.1,
+  },
+  [BiomeType.Grassland]: {
+    temperature: 20,
+    chanceOfRain: 0.3,
+    chanceOfSnow: 0.1,
+  },
+};
+
 export default class EnviromentSystem {
   currentTemperature: number;
   currentTime: number;
@@ -35,16 +58,24 @@ export default class EnviromentSystem {
   ticksPerMinute: number;
   totalDayMinutes: number;
   totalTicks: number;
-  objectManager: any;
-  threesFactor: any;
-  animalsFactor: any;
+
+  objectManager: ObjectManager;
+
+  threesFactor: number;
+  animalsFactor: number;
+
   currentDayMoment: DayMoment;
-  currentBiome: Biome;
+  biomeType: BiomeType;
   yearDuration: number;
   tickDuration: number;
+  biome:
+    | { temperature: number; chanceOfRain: number; chanceOfSnow: number }
+    | { temperature: number; chanceOfRain: number; chanceOfSnow: number }
+    | { temperature: number; chanceOfRain: number; chanceOfSnow: number }
+    | { temperature: number; chanceOfRain: number; chanceOfSnow: number };
 
   constructor(
-    biome: Biome,
+    biomeType: BiomeType,
     timeSettings: {
       startingTime: number;
       startingDayMoment: DayMoment;
@@ -67,7 +98,10 @@ export default class EnviromentSystem {
     this.objectManager = objectManager;
     this.currentTime = startingTime;
     this.currentDayMoment = startingDayMoment;
-    this.currentBiome = biome;
+    this.biomeType = biomeType;
+
+    this.biome = biomeSettingsByType[biomeType];
+
     this.yearDuration = yearDuration;
 
     this.totalDayMinutes = totalDayMinutes;
@@ -76,8 +110,11 @@ export default class EnviromentSystem {
     //* Calculate tick duration in milliseconds
     this.tickDuration = 1000 / this.ticksPerMinute;
 
-    this.currentTemperature = this.calculateTemperatureBySeason(startingSeason);
     this.currentSeason = startingSeason;
+    this.currentTemperature = this.calculateTemperatureBySeason();
+
+    this.threesFactor = 0.8;
+    this.animalsFactor = 0.1;
   }
 
   public advanceTime(milliseconds: number) {
@@ -88,8 +125,10 @@ export default class EnviromentSystem {
 
   public tick(currentTick: number) {
     // * Environment internals
-    this.currentDayMoment = this.getDayMoment(currentTick);
-    this.updateCurrentSeason;
+    this.updateDayMoment(currentTick);
+    this.updateSeason();
+    this.updateTemperature();
+
     // * Manage units and compositions
     const compositions: Compositions = this.objectManager.compositions;
     // * Groups tick first
@@ -106,42 +145,51 @@ export default class EnviromentSystem {
     entities.forEach((entity) => entity.tick(0.1));
   }
 
-  private getDayMoment(currentTick: number): DayMoment {
+  private updateDayMoment(currentTick: number) {
     const normalizedTick: number = currentTick % this.totalTicks;
     const percentage = (normalizedTick / this.totalTicks) * DEFAULT_GAME_SPEED;
 
-    if (percentage < 25) return DayMoment.Day;
-    if (percentage < 50) return DayMoment.Noon;
-    if (percentage < 75) return DayMoment.Evening;
+    if (percentage < 25) {
+      this.currentDayMoment = DayMoment.Day;
+      return null;
+    }
 
-    return DayMoment.Night;
+    if (percentage < 50) {
+      this.currentDayMoment = DayMoment.Noon;
+      return null;
+    }
+
+    if (percentage < 75) {
+      this.currentDayMoment = DayMoment.Evening;
+      return null;
+    }
+
+    this.currentDayMoment = DayMoment.Night;
   }
 
-  private updateCurrentSeason() {
+  private updateSeason() {
     const elapsedMinutes = Math.floor(this.currentTime / (1000 * 60));
     const currentYear = Math.floor(elapsedMinutes / this.yearDuration);
     const seasons = Object.values(SeasonType);
     const currentSeasonIndex = Math.floor(currentYear % seasons.length);
     this.currentSeason = seasons[currentSeasonIndex];
-    this.currentTemperature = this.calculateTemperatureBySeason(
-      this.currentSeason
-    );
   }
 
-  getCurrentTemperature(): number {
+  private updateTemperature() {
+    const baseTemperature = this.calculateTemperatureBySeason();
+
     const numberOfAnimals = this.objectManager.animals.length;
     const numberOfPlants = this.objectManager.plants.length;
 
-    return (
-      this.currentTemperature -
+    this.currentTemperature =
+      baseTemperature -
       numberOfPlants * this.threesFactor +
-      numberOfAnimals * this.animalsFactor
-    );
+      numberOfAnimals * this.animalsFactor;
   }
 
-  isRainingOrSnowing(): boolean {
+  isRaining(): boolean {
     const randomValue = Math.random();
-    const { chanceOfRain, chanceOfSnow } = this.getRainAndSnowChancesBySeason(
+    const { chanceOfRain } = this.getRainAndSnowChancesBySeason(
       this.currentSeason
     );
 
@@ -149,6 +197,15 @@ export default class EnviromentSystem {
       return true;
     }
 
+    return false;
+  }
+
+  isSnowing(): boolean {
+    const randomValue = Math.random();
+
+    const { chanceOfSnow } = this.getRainAndSnowChancesBySeason(
+      this.currentSeason
+    );
     if (chanceOfSnow > 0 && randomValue <= chanceOfSnow) {
       return true;
     }
@@ -156,7 +213,14 @@ export default class EnviromentSystem {
     return false;
   }
 
-  getData() {
+  isRainingOrSnowing() {
+    return {
+      isRaining: this.isRaining(),
+      isSnowing: this.isSnowing(),
+    };
+  }
+
+  getData(): PublicEnvironmentData {
     return {
       time: {
         currentTime: this.currentTime,
@@ -166,30 +230,28 @@ export default class EnviromentSystem {
       temperature: {
         currentTemperature: this.currentTemperature,
       },
-      weather: {
-        isRaining: this.isRainingOrSnowing(),
-      },
+      weather: this.isRainingOrSnowing(),
     };
   }
 
-  private calculateTemperatureBySeason(season: SeasonType): number {
-    if (season === SeasonType.Summer) {
-      return this.currentBiome.temperature + 10;
+  private calculateTemperatureBySeason(): number {
+    if (this.currentSeason === SeasonType.Summer) {
+      return this.biome.temperature + 10;
     }
 
-    if (season === SeasonType.Winter) {
-      return this.currentBiome.temperature - 10;
+    if (this.currentSeason === SeasonType.Winter) {
+      return this.biome.temperature - 10;
     }
 
-    if (season === SeasonType.Spring) {
-      return this.currentBiome.temperature + 5;
+    if (this.currentSeason === SeasonType.Spring) {
+      return this.biome.temperature + 5;
     }
 
-    if (season === SeasonType.Fall) {
-      return this.currentBiome.temperature;
+    if (this.currentSeason === SeasonType.Fall) {
+      return this.biome.temperature;
     }
 
-    return this.currentBiome.temperature;
+    return this.biome.temperature;
   }
 
   private getRainAndSnowChancesBySeason(season: SeasonType): {
@@ -198,32 +260,47 @@ export default class EnviromentSystem {
   } {
     if (season === SeasonType.Summer) {
       return {
-        chanceOfRain: this.currentBiome.chanceOfRain * 0.2,
+        chanceOfRain: this.biome.chanceOfRain * 0.2,
         chanceOfSnow: 0,
       };
     }
 
     if (season === SeasonType.Winter) {
       return {
-        chanceOfRain: this.currentBiome.chanceOfRain * 0.4,
-        chanceOfSnow: this.currentBiome.chanceOfSnow * 0.8,
+        chanceOfRain: this.biome.chanceOfRain * 0.4,
+        chanceOfSnow: this.biome.chanceOfSnow * 0.8,
       };
     }
 
     if (season === SeasonType.Spring) {
       return {
-        chanceOfRain: this.currentBiome.chanceOfRain * 0.6,
-        chanceOfSnow: this.currentBiome.chanceOfSnow * 0.1,
+        chanceOfRain: this.biome.chanceOfRain * 0.6,
+        chanceOfSnow: this.biome.chanceOfSnow * 0.1,
       };
     }
 
     if (season === SeasonType.Fall) {
       return {
-        chanceOfRain: this.currentBiome.chanceOfRain * 0.3,
+        chanceOfRain: this.biome.chanceOfRain * 0.3,
         chanceOfSnow: 0,
       };
     }
 
     return { chanceOfRain: 0, chanceOfSnow: 0 };
   }
+}
+
+export interface PublicEnvironmentData {
+  time: {
+    currentTime: number;
+    currentDayMoment: DayMoment;
+    currentSeason: SeasonType;
+  };
+  temperature: {
+    currentTemperature: number;
+  };
+  weather: {
+    isRaining: boolean;
+    isSnowing: boolean;
+  };
 }
