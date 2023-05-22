@@ -27,10 +27,7 @@ export default class ObjectManager {
   public microbes: Microbe[] = [];
   public plants: Plant[] = [];
   public rocks: Rock[] = [];
-  public compositions: {
-    animalGroups?: AnimalGroup[];
-    microbeColonies?: MicrobeColony;
-  };
+  public compositions: Compositions;
   constructor(context: "DEV" | "TEST" | "PROD", settings: any) {
     this.context = context;
     this.gameIsCreated = false;
@@ -41,21 +38,8 @@ export default class ObjectManager {
     };
   }
 
-  getData(effect: string | undefined): {
-    nodes: Node[];
-    globalSuffering: number;
-  } {
-    if (this.compositions.animalGroups?.length) {
-      this.compositions.animalGroups.forEach((an) => an.tick(0.1));
-    }
-    const globalSuffering = this.animals.reduce(
-      (accumulator, animal) =>
-        accumulator + animal.perceptionSystem.accessCurrentSuffering,
-      0
-    );
-
-    // @ts-ignore
-    const nodes = [
+  getAllEntities(): Entities {
+    return [
       ...this.animals,
       ...this.corpses,
       ...this.dungs,
@@ -64,7 +48,21 @@ export default class ObjectManager {
       ...this.plants,
       ...this.rocks,
       ...this.constructions,
-    ]
+    ];
+  }
+
+  getData(effect: string | undefined): {
+    nodes: Node[];
+    globalSuffering: number;
+  } {
+    const globalSuffering = this.animals.reduce(
+      (accumulator, animal) =>
+        accumulator + animal.perceptionSystem.accessCurrentSuffering,
+      0
+    );
+
+    // @ts-ignore
+    const nodes = this.getAllEntities()
       .map((c) => {
         // @ts-ignore
         if (c?.type && c?.active) {
@@ -281,4 +279,20 @@ export default class ObjectManager {
       return newConstruction;
     }
   }
+}
+
+export type Entities = (
+  | PlantFactory
+  | Animal
+  | Corpse
+  | Dung
+  | Egg
+  | Microbe
+  | Plant
+  | Rock
+)[];
+
+export interface Compositions {
+  animalGroups?: AnimalGroup[];
+  microbeColonies?: MicrobeColony[];
 }

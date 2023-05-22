@@ -1,1 +1,3 @@
-export default class MicrobeColony {}
+export default class MicrobeColony {
+  tick(deltaTime: number): void {}
+}
