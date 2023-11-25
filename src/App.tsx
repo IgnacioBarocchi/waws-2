@@ -1,32 +1,33 @@
-import {
-  useState,
-  useMemo,
-  useEffect as useGameTriggerEffect,
-  useEffect as useLoadDataEffect,
-} from "react";
-import GameEngine from "./services/@GameEngine";
-import ObjectManager from "./services/ObjectManager";
-import GameTrigger from "./trigger/GameTrigger";
-import { GameEngineContext } from "./containers/GameEngineContext";
-import { ObjectManagerContext } from "./containers/ObjectManagerContext";
-import Core from "./components/Core";
 import { AppUIStateProvider, useAppUIState } from "./containers/AppUIContext";
-import GlobalGameEntitiesStyler from "./containers/GlobalGameEntitiesStyler";
-import { loadAnimalRecordTypes } from "./workers/loadAnimalRecordTypes";
-import LocalStorageService from "./services/LocalStorageService";
-import { ThreeProvider } from "./containers/ThreeContext";
-import { ReactFlowProvider as ScenarioProvider } from "reactflow";
+import { Canvas, useThree } from "@react-three/fiber";
+import { ContactShadows, Float } from "@react-three/drei";
 import EnviromentSystem, {
   BiomeType,
   DayMoment,
   SeasonType,
 } from "./services/EnviromentSystem";
+import {
+  useEffect as useGameTriggerEffect,
+  useEffect as useLoadDataEffect,
+  useMemo,
+  useState,
+} from "react";
 
+import Core from "./components/Core";
+import GameEngine from "./services/@GameEngine";
+import { GameEngineContext } from "./containers/GameEngineContext";
+import GameTrigger from "./trigger/GameTrigger";
+import GlobalGameEntitiesStyler from "./containers/GlobalGameEntitiesStyler";
+import LocalStorageService from "./services/LocalStorageService";
+import ObjectManager from "./services/ObjectManager";
+import { ObjectManagerContext } from "./containers/ObjectManagerContext";
+import { ReactFlowProvider as ScenarioProvider } from "reactflow";
+import { loadAnimalRecordTypes } from "./workers/loadAnimalRecordTypes";
 const timeSettings = {
   startingTime: 10,
   startingDayMoment: DayMoment.Day,
   startingSeason: SeasonType.Summer,
-  ticksPerMinute: 10,
+  ticksPerMinute: 100,
   startingTick: 10,
   totalDayMinutes: 10,
 };
@@ -94,12 +95,15 @@ export default function App() {
     <AppUIStateProvider>
       <ObjectManagerContext.Provider value={objectManager}>
         <GameEngineContext.Provider value={gameEngine}>
-          <ThreeProvider>
-            <GlobalGameEntitiesStyler />
-            <ScenarioProvider>
-              <Core />
-            </ScenarioProvider>
-          </ThreeProvider>
+          <GlobalGameEntitiesStyler />
+          <ScenarioProvider>
+            {/* <Canvas camera={{ position: [-3, 8, -6.5] }}>
+              <ambientLight />
+              <pointLight position={[5, 5, 5]} intensity={1} />
+              <pointLight position={[-3, -3, 2]} /> */}
+            <Core />
+            {/* </Canvas> */}
+          </ScenarioProvider>
         </GameEngineContext.Provider>
       </ObjectManagerContext.Provider>
     </AppUIStateProvider>

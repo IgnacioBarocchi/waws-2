@@ -124,6 +124,7 @@ export default class EnviromentSystem {
   }
 
   public tick(currentTick: number) {
+    console.log("tick");
     // * Environment internals
     this.updateDayMoment(currentTick);
     this.updateSeason();
@@ -135,6 +136,7 @@ export default class EnviromentSystem {
     if (compositions.animalGroups?.length) {
       compositions.animalGroups.forEach((composition) => composition.tick(0.1));
     }
+
     if (compositions.microbeColonies?.length) {
       compositions.microbeColonies.forEach((composition) =>
         composition.tick(0.1)

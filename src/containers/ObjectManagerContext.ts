@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import { createContext, useContext } from "react";
 import ObjectManager from "../services/ObjectManager";
 
 // Create a context for the object manager instance

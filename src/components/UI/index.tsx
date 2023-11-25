@@ -15,10 +15,10 @@ const UI = () => {
         </button>
       </Panel>
       <Panel position="top-center">
-        <WeatherComponent
+        {/* <WeatherComponent
         // @ts-ignore
         // data={UIState.enviromentData}
-        />
+        /> */}
       </Panel>
 
       <Panel position="bottom-left">

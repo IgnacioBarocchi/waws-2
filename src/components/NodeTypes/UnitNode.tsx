@@ -6,7 +6,7 @@ import {
   NodeAvatar,
   SourceUnitHandle,
   TargetUnitHandle,
-  Unit3DModel,
+  // Unit3DModel,
   UnitType,
 } from "./NodeTypesElements";
 import { useGameEngine } from "../../containers/GameEngineContext";
@@ -48,6 +48,10 @@ function UnitNode({
         flowHidden={UIHidden}
       >
         <NodeAvatar
+          // @ts-ignore
+          x={nodeData.position?.x}
+          // @ts-ignore
+          z={nodeData.position?.y}
           arrowHidden={!isAnimal || UIHidden}
           turnAngle={Number(publicInstanceData.turnAngle)}
           render3D={render3D}

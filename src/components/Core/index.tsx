@@ -243,6 +243,7 @@ function Core() {
       return () => {
         clearInterval(intervalId);
       };
+      // play();
     }
   }, [isPlaying]);
 

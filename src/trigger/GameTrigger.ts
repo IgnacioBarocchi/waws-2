@@ -37,8 +37,8 @@ export default class GameTrigger extends Trigger {
 
       if (this.objectManager.context === "DEV") {
         this.initializeUnitsForDevelopmentContext({
-          animals: true,
-          animalsGroups: false,
+          animals: false,
+          animalsGroups: true,
         });
         this.objectManager.gameIsCreated = true;
       }
